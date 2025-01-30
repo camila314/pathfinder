@@ -10,6 +10,13 @@
 	"name": "Pathfinder",
 	"developer": "camila314",
 	"version": "v1.0.0-beta.18",
+	"settings": {
+		"use-existing-menus": {
+			"name": "Add Button To Existing Menus Instead",
+			"type": "bool",
+			"default": false
+		}
+	},
 	"dependencies": [
 		{
 			"id": "geode.node-ids",

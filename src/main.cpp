@@ -143,16 +143,22 @@ class $modify(EditLevelLayer) {
 
         btn->setTopRelativeScale(1.4);
 
-        btn.intoMenuItem([this]() {
+        auto clickable = btn.intoMenuItem([this]() {
                 auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
-        }).id("pathfinder-button")
-          .intoNewParent(CCMenu::create())
+        }).id("pathfinder-button");
+
+        if (geode::Mod::get()->getSettingValue<bool>("use-existing-menus")) {
+            CCNode* levelActions = getChildByID("level-actions-menu");
+            clickable.parent(levelActions);
+            levelActions->updateLayout();
+        } else {
+          clickable.intoNewParent(CCMenu::create())
           .parent(this)
           .id("pathfinder-menu")
           .matchPos(getChildByIDRecursive("delete-button"))
           .move(-45, 0);
-
+        }
 
         return true;
     }
@@ -171,13 +177,20 @@ class $modify(LevelInfoLayer) {
 
         btn->setTopRelativeScale(1.4);
 
-        btn.intoMenuItem([this]() {
+        auto clickable = btn.intoMenuItem([this]() {
                 auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
-        }).id("pathfinder-button")
-          .parent(getChildByID("other-menu"))
-          .matchPos(getChildByIDRecursive("list-button"))
-          .move(0, 45);
+        }).id("pathfinder-button");
+
+        if (geode::Mod::get()->getSettingValue<bool>("use-existing-menus")) {
+            CCNode* leftSide = getChildByID("left-side-menu");
+            clickable.parent(leftSide);
+            leftSide->updateLayout();
+        } else {
+            clickable.parent(getChildByID("other-menu"))
+            .matchPos(getChildByIDRecursive("list-button"))
+            .move(0, 45);
+        }
 
         return true;
     }
