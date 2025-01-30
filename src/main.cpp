@@ -14,6 +14,7 @@ class PathfinderNode : public CCLayerColor {
     std::atomic<double> m_progress = 0;
     std::future<std::vector<uint8_t>> m_result;
     std::string m_levelName;
+    std::atomic_bool m_levelMayBeUnsupported = false;
 public:
     static PathfinderNode* create(std::string const& levelName, std::string const& lvlString) {
         auto node = new PathfinderNode();
@@ -61,6 +62,15 @@ public:
             .scale(0.8)
             .move(0, -40)
             .parent(getChildByID("menu"));
+
+        if (this->m_levelMayBeUnsupported) {
+            Build<CCLabelBMFont>::create("This macro MAY break.\nBy exporting, you're OK with this.", "chatFont.fnt")
+                .alignment(kCCTextAlignmentCenter)
+                .parent(getChildByID("menu"))
+                .id("warning");
+
+            getChildByIDRecursive("percent")->setPositionY(24.f);
+        }
     }
 
     void keyBackClicked() override  {
@@ -77,10 +87,10 @@ public:
 
         m_result = std::async(std::launch::async, [lvlString, this]() {
             try {
-            return pathfind(lvlString, m_stop, [this](double progress) {
-                if (m_progress < progress)
-                    m_progress = progress;
-            });
+                return pathfind(lvlString, m_stop, m_levelMayBeUnsupported, [this](double progress) {
+                    if (m_progress < progress)
+                        m_progress = progress;
+                });
             } catch (std::exception& e) {
                 log::error("{}", e.what());
                 return std::vector<uint8_t>();
@@ -123,7 +133,6 @@ public:
                     })
                     .move(-125, 70)
                     .scale(0.8);
-        ;
 
         return true;
     }

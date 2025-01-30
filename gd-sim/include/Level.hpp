@@ -10,6 +10,7 @@ class Level {
 	size_t objectCount = 0;
 	std::vector<std::vector<ObjectContainer>> sections;
 	float length = 0.0;
+	bool mayBeUnsupported = false; // for version checking
 
  	static constexpr uint32_t sectionSize = 100;
  	bool debug = false;

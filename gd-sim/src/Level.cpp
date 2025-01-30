@@ -65,6 +65,8 @@ Level::Level(std::string const& lvlString) {
 
 			if (ob->pos.x > length)
 				length = ob->pos.x + 100;
+		} else if (!mayBeUnsupported) {
+			mayBeUnsupported = true; // only set the bool once. if ob_o is invalid it is unsupported
 		}
 	}
 
