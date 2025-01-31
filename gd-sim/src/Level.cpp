@@ -54,6 +54,11 @@ Level::Level(std::string const& lvlString) {
 				obj[atoi(k.c_str())] = v;
 		}
 
+		if (!mayBeUnsupported && unsupportedObjects.contains(std::stoi(obj[1]))) {
+			// only set the bool once. if unsupportedObjects contains ID, it is unsupported
+			mayBeUnsupported = true;
+		}
+
 		if (auto ob_o = Object::create(std::move(obj))) {
 			auto ob = ob_o.value();
 			ob->id = objectCount++;
@@ -65,8 +70,6 @@ Level::Level(std::string const& lvlString) {
 
 			if (ob->pos.x > length)
 				length = ob->pos.x + 100;
-		} else if (!mayBeUnsupported) {
-			mayBeUnsupported = true; // only set the bool once. if ob_o is invalid it is unsupported
 		}
 	}
 
