@@ -3,6 +3,7 @@
 #include <Geode/modify/EditLevelLayer.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <UIBuilder.hpp>
+#include <Level.hpp>
 #include "pathfinder.hpp"
 #include <future>
 
@@ -34,7 +35,7 @@ public:
 
     void finalize(std::vector<uint8_t> macro) {
         getChildByIDRecursive("cancel")->setVisible(false);
- 
+
         Build<ButtonSprite>::create("Export", "bigFont.fnt", "GJ_button_01.png")
             .intoMenuItem([this, macro]() {
                 auto saveDir = Mod::get()->getSaveDir();
@@ -62,15 +63,6 @@ public:
             .scale(0.8)
             .move(0, -40)
             .parent(getChildByID("menu"));
-
-        if (this->m_levelMayBeUnsupported) {
-            Build<CCLabelBMFont>::create("This macro MAY break.\nBy exporting, you're OK with this.", "chatFont.fnt")
-                .alignment(kCCTextAlignmentCenter)
-                .parent(getChildByID("menu"))
-                .id("warning");
-
-            getChildByIDRecursive("percent")->setPositionY(24.f);
-        }
     }
 
     void keyBackClicked() override  {
@@ -154,7 +146,9 @@ class $modify(EditLevelLayer) {
         btn->setTopRelativeScale(1.4);
 
         auto clickable = btn.intoMenuItem([this]() {
-            if (m_level->m_gameVersion > 17) {
+            auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+            auto level = Level(lvlString);
+            if (m_level->m_gameVersion > 17 && level.mayBeUnsupported) {
                 geode::createQuickPopup(
                     "Pathfinder",
                     "You are about to run the pathfinder on a level with <c_>UNSUPPORTED OBJECTS</c>.\n<cy>The pathfinder</c> <c_>WILL</c> <cy>produce a broken macro.</c>\nBy pressing \"Pathfind\", you are willing to expect <cy>a broken macro</c>.",
@@ -165,7 +159,6 @@ class $modify(EditLevelLayer) {
                     }
                 );
             } else {
-                auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
             }
         }).id("pathfinder-button");
@@ -201,7 +194,9 @@ class $modify(LevelInfoLayer) {
         btn->setTopRelativeScale(1.4);
 
         auto clickable = btn.intoMenuItem([this]() {
-            if (m_level->m_gameVersion > 17) {
+            auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+            auto level = Level(lvlString);
+            if (m_level->m_gameVersion > 17 && level.mayBeUnsupported) {
                 geode::createQuickPopup(
                     "Pathfinder",
                     "You are about to run the pathfinder on a level with <c_>UNSUPPORTED OBJECTS</c>.\n<cy>The pathfinder</c> <c_>WILL</c> <cy>produce a broken macro.</c>\nBy pressing \"Pathfind\", you are willing to expect <cy>a broken macro</c>.",
@@ -212,7 +207,6 @@ class $modify(LevelInfoLayer) {
                     }
                 );
             } else {
-                auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
             }
         }).id("pathfinder-button");

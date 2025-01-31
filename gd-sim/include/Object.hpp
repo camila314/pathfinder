@@ -8,7 +8,8 @@ struct ObjectContainer;
 struct Player;
 struct Object : public Entity {
     int id;
-    int prio; // lower = more important
+    int8_t prio; // lower = more important
+    bool unsupported = false;
 
     Object() = default;
     Object(Vec2D size, std::unordered_map<int, std::string>&& fields);
