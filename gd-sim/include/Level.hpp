@@ -28,6 +28,8 @@ static std::set unsupportedObjects = {
     1933, // swing portal
     2063, // checkpoint (in case some nerd wants to use it in classic mode)
     2069, // force block (square)
+    2902, // unlinked teleport portal (blue)
+    2064, // unlinked teleport portal (orange)
     2866, // f modifier block
     2926, // flip portal
     3027, // teleport orb
