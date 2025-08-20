@@ -3,6 +3,7 @@
 #include <Geode/modify/EditLevelLayer.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <UIBuilder.hpp>
+#include <Level.hpp>
 #include "pathfinder.hpp"
 #include <future>
 
@@ -14,6 +15,7 @@ class PathfinderNode : public CCLayerColor {
     std::atomic<double> m_progress = 0;
     std::future<std::vector<uint8_t>> m_result;
     std::string m_levelName;
+    std::atomic_bool m_levelMayBeUnsupported = false;
 public:
     static PathfinderNode* create(std::string const& levelName, std::string const& lvlString) {
         auto node = new PathfinderNode();
@@ -79,10 +81,10 @@ public:
 
         m_result = std::async(std::launch::async, [lvlString, this]() {
             try {
-            return pathfind(lvlString, m_stop, [this](double progress) {
-                if (m_progress < progress)
-                    m_progress = progress;
-            });
+                return pathfind(lvlString, m_stop, m_levelMayBeUnsupported, [this](double progress) {
+                    if (m_progress < progress)
+                        m_progress = progress;
+                });
             } catch (std::exception& e) {
                 log::error("{}", e.what());
                 return std::vector<uint8_t>();
@@ -165,6 +167,7 @@ public:
 class $modify(EditLevelLayer) {
     bool init(GJGameLevel* p0) {
         EditLevelLayer::init(p0);
+        if (m_level->isPlatformer()) return true;
 
         auto btn = Build<BasedButtonSprite>::create(
             CCSprite::create("pathfinder.png"_spr),
@@ -175,16 +178,35 @@ class $modify(EditLevelLayer) {
 
         btn->setTopRelativeScale(1.4);
 
-        btn.intoMenuItem([this]() {
-                auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+        auto clickable = btn.intoMenuItem([this]() {
+            auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+            auto level = Level(lvlString);
+            if (m_level->m_gameVersion > 17 && level.mayBeUnsupported) {
+                geode::createQuickPopup(
+                    "Pathfinder",
+                    "You are about to run the pathfinder on a level with <c_>UNSUPPORTED OBJECTS</c>.\n<cy>The pathfinder</c> <c_>WILL</c> <cy>produce a broken macro.</c>\nBy pressing \"Pathfind\", you are willing to expect <cy>a broken macro</c>.",
+                    "Cancel", "Pathfind",
+                    [this](FLAlertLayer* alert, bool pathfind) {
+                        if (!pathfind) return;
+                        Build<PathfinderNode>::create(m_level->m_levelName, ZipUtils::decompressString(m_level->m_levelString, true, 0)).parent(this).zOrder(100);
+                    }
+                );
+            } else {
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
-        }).id("pathfinder-button")
-          .intoNewParent(CCMenu::create())
+            }
+        }).id("pathfinder-button");
+
+        if (geode::Mod::get()->getSettingValue<bool>("use-existing-menus")) {
+            CCNode* levelActions = getChildByID("level-actions-menu");
+            clickable.parent(levelActions);
+            levelActions->updateLayout();
+        } else {
+          clickable.intoNewParent(CCMenu::create())
           .parent(this)
           .id("pathfinder-menu")
           .matchPos(getChildByIDRecursive("delete-button"))
           .move(-45, 0);
-
+        }
 
         return true;
     }
@@ -193,6 +215,7 @@ class $modify(EditLevelLayer) {
 class $modify(LevelInfoLayer) {
     bool init(GJGameLevel* level, bool challenge) {
         LevelInfoLayer::init(level, challenge);
+        if (m_level->isPlatformer()) return true;
 
         auto btn = Build<BasedButtonSprite>::create(
             CCSprite::create("pathfinder.png"_spr),
@@ -203,13 +226,33 @@ class $modify(LevelInfoLayer) {
 
         btn->setTopRelativeScale(1.4);
 
-        btn.intoMenuItem([this]() {
-                auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+        auto clickable = btn.intoMenuItem([this]() {
+            auto lvlString = ZipUtils::decompressString(m_level->m_levelString, true, 0);
+            auto level = Level(lvlString);
+            if (m_level->m_gameVersion > 17 && level.mayBeUnsupported) {
+                geode::createQuickPopup(
+                    "Pathfinder",
+                    "You are about to run the pathfinder on a level with <c_>UNSUPPORTED OBJECTS</c>.\n<cy>The pathfinder</c> <c_>WILL</c> <cy>produce a broken macro.</c>\nBy pressing \"Pathfind\", you are willing to expect <cy>a broken macro</c>.",
+                    "Cancel", "Pathfind",
+                    [this](FLAlertLayer* alert, bool pathfind) {
+                        if (!pathfind) return;
+                        Build<PathfinderNode>::create(m_level->m_levelName, ZipUtils::decompressString(m_level->m_levelString, true, 0)).parent(this).zOrder(100);
+                    }
+                );
+            } else {
                 Build<PathfinderNode>::create(m_level->m_levelName, lvlString).parent(this).zOrder(100);
-        }).id("pathfinder-button")
-          .parent(getChildByID("other-menu"))
-          .matchPos(getChildByIDRecursive("list-button"))
-          .move(0, 45);
+            }
+        }).id("pathfinder-button");
+
+        if (geode::Mod::get()->getSettingValue<bool>("use-existing-menus")) {
+            CCNode* leftSide = getChildByID("left-side-menu");
+            clickable.parent(leftSide);
+            leftSide->updateLayout();
+        } else {
+            clickable.parent(getChildByID("other-menu"))
+            .matchPos(getChildByIDRecursive("list-button"))
+            .move(0, 45);
+        }
 
         return true;
     }

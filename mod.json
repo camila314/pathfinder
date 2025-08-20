@@ -10,13 +10,16 @@
 	"name": "Pathfinder",
 	"developer": "camila314",
 	"version": "v1.0.0-beta.19",
-	"dependencies": [
-		{
-			"id": "geode.node-ids",
-			"version": ">=v1.18.0",
-			"importance": "required"
+	"dependencies": {
+    "geode.node-ids": ">=v1.18.0"
+  },
+	"settings": {
+		"use-existing-menus": {
+			"name": "Add Button To Existing Menus Instead",
+			"type": "bool",
+			"default": false
 		}
-	],
+	},
 	"resources": {
 		"sprites": [
 			"pathfinder.png"

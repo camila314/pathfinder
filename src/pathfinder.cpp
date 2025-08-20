@@ -53,8 +53,9 @@ int tryInputs(Level2& lvl, std::set<uint16_t> inputs) {
 	return final;
 }
 
-std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& stop, std::function<void(double)> callback) {
+std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& stop, std::atomic_bool& mayBeUnsupported, std::function<void(double)> callback) {
 	Level2 lvl(lvlString);
+	mayBeUnsupported = lvl.mayBeUnsupported;
 
 	std::random_device rd;
 	std::mt19937 rng(rd());
