@@ -98,7 +98,7 @@ class $modify(EditorPauseLayer) {
 	void customSetup() {
 		EditorPauseLayer::customSetup();
 
-		if (Mod::get()->getSettingValue<bool>("debug"))
+		if (true)
 			Loader::get()->queueInMainThread([this]() {
 				auto guide = Build(this).intoChildByID("guidelines-menu").collect();
 				if (!guide)
@@ -169,7 +169,7 @@ class $modify(LevelEditorLayer) {
 		LevelEditorLayer::init(lvl, p1);
 		(void)file::writeString(Mod::get()->getSaveDir() / "real.txt", realTxt);
 
-		if (Mod::get()->getSettingValue<bool>("debug")) {
+		if (true) {
 			auto b = CCDrawNode::create();
 			b->setID("pathfind-node");
 			m_objectLayer->addChild(b);
@@ -187,7 +187,7 @@ class $modify(LevelEditorLayer) {
 
 class $modify(GJBaseGameLayer) {
 	void processCommands(float dt) {
-		if (Mod::get()->getSettingValue<bool>("debug")) {
+		if (true) {
 			GJBaseGameLayer::processCommands(1 / 240.);
 
 			if (PlayLayer::get()) {
@@ -196,6 +196,7 @@ class $modify(GJBaseGameLayer) {
 				static double prevXVel = 0;	
 
 				double vel = m_player1->m_yVelocity * 60 * 0.9 * (m_player1->m_isUpsideDown ? -1 : 1);
+				log::info("{}", reference_cast<long>(m_player1->m_yVelocity));
 				double xvel = (m_player1->getPositionX() - prevX);
 
 				auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240);
@@ -219,5 +220,6 @@ class $modify(PlayLayer) {
 		PlayLayer::resetLevel();
 		realTxt = "";
 		s_realPoints.clear();
+		frames = 0;
 	}
 };

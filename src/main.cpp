@@ -34,32 +34,34 @@ public:
     }
 
     void finalize(std::vector<uint8_t> macro) {
-        getChildByIDRecursive("cancel")->setVisible(false);
+        getChildByIDRecursive("stop")->setVisible(false);
+ 
+        auto callback = [this, macro] {
+            auto saveDir = Mod::get()->getSaveDir();
+            if (Loader::get()->isModLoaded("eclipse.eclipse-menu")) {
+                saveDir = Loader::get()->getLoadedMod("eclipse.eclipse-menu")->getSaveDir() / "replays";
+            }
+
+            if (!exists(saveDir)) {
+                create_directories(saveDir);
+            }
+
+            pick(PickMode::SaveFile, {
+                saveDir / fmt::format("{}.gdr", m_levelName),
+                {{
+                    std::string("Macro File"),
+                    std::unordered_set {std::string("gdr")}
+                }}
+            }).listen([this, macro](auto path) {
+                if (path->isOk()) {
+                    (void)writeBinary(path->unwrap(), macro);
+                    removeFromParentAndCleanup(true);
+                }
+            }, [](auto) {}, []() {});
+        };
 
         Build<ButtonSprite>::create("Export", "bigFont.fnt", "GJ_button_01.png")
-            .intoMenuItem([this, macro]() {
-                auto saveDir = Mod::get()->getSaveDir();
-                if (Loader::get()->isModLoaded("eclipse.eclipse-menu")) {
-                    saveDir = Loader::get()->getLoadedMod("eclipse.eclipse-menu")->getSaveDir() / "replays";
-                }
-
-                if (!exists(saveDir)) {
-                    create_directories(saveDir);
-                }
-
-                pick(PickMode::SaveFile, {
-                    saveDir / fmt::format("{}.gdr", m_levelName),
-                    {{
-                        std::string("Macro File"),
-                        std::unordered_set {std::string("gdr")}
-                    }}
-                }).listen([this, macro](auto path) {
-                    if (path->isOk()) {
-                        (void)writeBinary(path->unwrap(), macro);
-                        removeFromParentAndCleanup(true);
-                    }
-                }, [](auto) {}, []() {});
-            })
+            .intoMenuItem(callback)
             .scale(0.8)
             .move(0, -40)
             .parent(getChildByID("menu"));
@@ -90,17 +92,47 @@ public:
         });
 
         setKeypadEnabled(true);
-        Build(this)
-            .initTouch()
-            .schedule([this](float) {
+
+        Build(this).initTouch().schedule([this](float) {
                 Build(this).intoChildRecurseID<CCLabelBMFont>("percent")
                     .string(fmt::format("{:.2f}%", m_progress).c_str());
 
                 if (m_result.valid() && m_result.wait_for(std::chrono::seconds(0)) == std::future_status::ready) {
                     finalize(m_result.get());
                 }
-            })
-            .intoNewChild(CCMenu::create())
+        });
+
+        auto handle = [this](CCMenuItemSpriteExtra* it) {
+            m_stop = true;
+
+            if (it->getID() == "stop")
+                finalize(m_result.get());
+            else
+                removeFromParentAndCleanup(true);
+        };
+
+        auto menu = Build<CCMenu>::create().parent(this).id("menu").children(
+            Build<CCScale9Sprite>::create("GJ_square02.png")
+                .contentSize(250, 140),
+            Build<CCLabelBMFont>::create("Pathfinding...", "bigFont.fnt")
+                .move(0, 50)
+                .scale(0.8),
+            Build<CCLabelBMFont>::create("0.00", "chatFont.fnt")
+                .id("percent")
+                .move(0, 10),
+            Build<ButtonSprite>::create("Stop", "bigFont.fnt", "GJ_button_04.png")
+                .scale(0.8)
+                .intoMenuItem(handle)
+                .id("stop")
+                .move(0, -40),
+            Build<CCSprite>::createSpriteName("GJ_closeBtn_001.png")
+                .intoMenuItem(handle)
+                .id("close")
+                .move(-125, 70)
+                .scale(0.8)
+        );
+
+        /*    .intoNewChild(CCMenu::create())
                 .id("menu")
                 .intoNewChild(CCScale9Sprite::create("GJ_square04.png"))
                     .contentSize(250, 140)
@@ -124,7 +156,8 @@ public:
                         this->removeFromParentAndCleanup(true);
                     })
                     .move(-125, 70)
-                    .scale(0.8);
+                    .scale(0.8);*/
+        ;
 
         return true;
     }

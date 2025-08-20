@@ -1,3 +1,10 @@
+# beta 19
+
+- Fix ship accelerations
+- Wave is now slightly more functional
+- Slope ejections are accurate
+- Everything is debug mode now
+
 # beta 18
 ## Fix tons of bugs:
 - Blue portal on floor would kill

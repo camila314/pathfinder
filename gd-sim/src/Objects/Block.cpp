@@ -99,6 +99,10 @@ void Block::collide(Player& p) const {
 
 	double bottom = p.gravBottom(p);
 	if (p.slopeData.slope) {
+		if (p.slopeData.slope->angle() < 0) {
+			p.slopeData.slope = {};
+		}
+
 		bottom = bottom + sin(p.slopeData.slope->angle()) * p.size.y / 2;
 		clip = 7;
 		if (p.gravTop(*this) - bottom < 2)

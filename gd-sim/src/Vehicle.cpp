@@ -136,13 +136,15 @@ Vehicle ship() {
 		if (p.grounded)
 			p.setVelocity(0, !p.input);
 
+		constexpr double velcap = 101.541492; // formerly 103.485492
+
 		if (p.input) {
-			if (p.velocity <= p.grav(103.485492))
+			if (p.velocity <= p.grav(velcap))
 				p.acceleration = p.small ? 1643.5872 : 1397.0491;
 			else
 				p.acceleration = p.small ? 1314.86976 : 1117.64328;
 		} else {
-			if (p.velocity >= p.grav(103.485492))
+			if (p.velocity >= p.grav(velcap))
 				p.acceleration = p.small ? -1577.85408 : -1341.1719;
 			else
 				p.acceleration = p.small ? -1051.8984 : -894.11464;
@@ -306,6 +308,11 @@ Vehicle wave() {
 		if (p.grav(p.pos.y) - p.grav(10) <= p.gravFloor() && !p.input) {
 			p.pos.y = p.grav(p.gravFloor()) + p.grav(10);
 			p.velocity = 0;
+		}
+
+		if (p.grav(p.pos.y) + p.grav(10) >= p.gravCeiling() && p.input) {
+			p.velocity = 0;
+			p.pos.y = p.grav(p.gravCeiling()) - p.grav(10);
 		}
 	};
 	v.update = +[](Player& p) {

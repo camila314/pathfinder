@@ -62,6 +62,12 @@ double Slope::expectedY(Player const& p) const {
 }
 
 void Slope::calc(Player& p) const {
+
+	if (p.vehicle.type == VehicleType::Wave) {
+		p.dead = true;
+		return;
+	}
+
 	if (gravOrient(p) == 0) {
 		if (!touching(p)) {
 			p.actions.push_back(+[](Player& p) {
@@ -80,14 +86,8 @@ void Slope::calc(Player& p) const {
 		}
 
 		if (p.gravBottom(p) == p.gravTop(*this) || (p.gravBottom(p) > p.gravTop(*this) && p.snapData.playerFrame > 0)) {
-			static double ejections[4] = {
-				316.4617,
-				392.5909,
-				488.149356,
-				589.68013
-			};
+			double vel = 0.9 * std::min(1.12 / angle(), 1.54) * (size.y * player_speeds[p.speed] / size.x);
 
-			double vel = ejections[p.speed] * (size.y / size.x) * std::min(1.1, 0.8 / angle());
 			double time = std::clamp(10 * (p.timeElapsed - p.slopeData.elapsed), 0.4, 1.0);
 
 			if (p.vehicle.type == VehicleType::Ball)

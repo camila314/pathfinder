@@ -6,10 +6,13 @@
 		"mac": "2.2074",
 		"ios": "2.2074"
 	},
-	"geode": "4.2.0",
+	"geode": "4.4.0",
 	"name": "Pathfinder",
 	"developer": "camila314",
-	"version": "v1.0.0-beta.18",
+	"version": "v1.0.0-beta.19",
+	"dependencies": {
+    "geode.node-ids": ">=v1.18.0"
+  },
 	"settings": {
 		"use-existing-menus": {
 			"name": "Add Button To Existing Menus Instead",
@@ -17,13 +20,6 @@
 			"default": false
 		}
 	},
-	"dependencies": [
-		{
-			"id": "geode.node-ids",
-			"version": ">=v1.18.0",
-			"importance": "required"
-		}
-	],
 	"resources": {
 		"sprites": [
 			"pathfinder.png"
