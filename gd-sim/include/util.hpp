@@ -111,11 +111,16 @@ inline constexpr float rad2deg(float rad) {
 }
 
 inline float stod_def(std::string const& str, float def = 0) {
-    try {
-        return std::stod(str);
-    } catch (...) {
+    char const* begin = str.c_str();
+    char* end = nullptr;
+
+    errno = 0;
+    double out = std::strtod(begin, &end);
+    if (begin == end || *end != '\0' || errno == ERANGE) {
         return def;
     }
+
+    return out;
 }
 
 struct Vec2D {
