@@ -23,6 +23,20 @@ class Replay2 : public gdr::Replay<Replay2, gdr::Input> {
 	Replay2() : Replay("GD Sim", "1.0"){}
 };
 
+#ifdef _WIN32
+#include <Windows.h>
+#include <cwctype>
+#include <stringapiset.h>
+
+std::string pathToUtf8(std::filesystem::path const& path) {
+	std::wstring wstr = path.wstring();
+    int count = WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), wstr.length(), NULL, 0, NULL, NULL);
+    std::string str(count, 0);
+    WideCharToMultiByte(CP_UTF8, 0, wstr.c_str(), -1, &str[0], count, NULL, NULL);
+    return str;
+}
+#endif
+
 
 void runTestSim(std::string const& level, std::filesystem::path const& path) {
 	std::ifstream macro(path, std::ios::binary);
@@ -62,7 +76,17 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 
 	try {
 		auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "build" / "gd-sim" / "gd-sim-test";
+
+		#if _WIN32
+		const auto out = subprocess::check_output({
+			pathToUtf8(dir),
+			pathToUtf8(lvlFile),
+			pathToUtf8(inpFile)
+		});
+		#else
 		const auto out = subprocess::check_output({dir, lvlFile, inpFile});
+		#endif
+
 		writeString(Mod::get()->getSaveDir() / "sim.txt", &out.buf[0]).unwrap();
 
 

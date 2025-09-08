@@ -101,7 +101,7 @@ void Slope::calc(Player& p) const {
 			double vel = 0.9 * std::min(1.12 / angle(), 1.54) * (size.y * player_speeds[p.speed] / size.x);
 			double time = std::clamp(10 * (p.timeElapsed - p.slopeData.elapsed), 0.4, 1.0);
 
-			if (p.vehicle.type == VehicleType::Ball)
+			if (p.vehicle.type == VehicleType::Ball || p.vehicle.type == VehicleType::Ship)
 				vel *= 0.75;
 			if (p.vehicle.type == VehicleType::Ufo)
 				vel *= 0.7499; // I have no justification for this. It just works
@@ -110,7 +110,8 @@ void Slope::calc(Player& p) const {
 
 			// Gotta eject on the next frame
 			p.actions.push_back([vel](Player& p) {
-				p.velocity = vel;
+				p.velocity = roundVel(vel, p.upsideDown);
+				std::cout << "vel is " << p.velocity << std::endl;
 
 				p.slopeData.slope = {};
 				p.slopeData.elapsed = 0;

@@ -138,7 +138,7 @@ void Block::collide(Player& p) const {
 	if (p.innerHitbox().intersects(*this)) {
 		// Hitting block head-on
 		p.dead = true;
-	} else if (p.gravTop(*this) - bottom <= clip && (padHitBefore || p.velocity <= 0 || p.gravityPortal)) {
+	} else if (p.vehicle.type != VehicleType::Wave && p.gravTop(*this) - bottom <= clip && (padHitBefore || p.velocity <= 0 || p.gravityPortal)) {
 		p.pos.y = p.grav(p.gravTop(*this)) + p.grav(p.size.y / 2);
 
 		// When hitting pads, the next frame will cause the player ot slightly dip into the block
@@ -162,7 +162,7 @@ void Block::collide(Player& p) const {
 		}
 	} else {
 		// Ship and ufo can hit the ceiling of a block without dying
-		if (p.vehicle.type == VehicleType::Ship || p.vehicle.type == VehicleType::Ufo) {
+		if (p.vehicle.type == VehicleType::Ship || p.vehicle.type == VehicleType::Ufo || p.vehicle.type == VehicleType::Ball) {
 			if (p.gravTop(p) - p.gravBottom(*this) <= clip - 1 && p.velocity > 0) {
 				p.pos.y = p.grav(p.gravBottom(*this)) - p.grav(p.size.y / 2);
 				p.velocity = 0;

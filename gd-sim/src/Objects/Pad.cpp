@@ -26,43 +26,44 @@ Pad::Pad(Vec2D size, std::unordered_map<int, std::string>&& fields) : EffectObje
 }
 
 const velocity_map<PadType, VehicleType, bool> pad_velocities = {
-	{{PadType::Yellow, VehicleType::Cube, false}, {864,         864,        864}},
-	{{PadType::Yellow, VehicleType::Cube, true},  {691.2,       691.2,      691.2}},
+	//											   slow speed   1x speed    2x speed   3x speed
+	{{PadType::Yellow, VehicleType::Cube, false}, {864,         864,         864,         864}},
+	{{PadType::Yellow, VehicleType::Cube, true},  {691.2,       691.2,       691.2,       691.2}},
 
-	{{PadType::Yellow, VehicleType::Ship, false}, {864,         864,        864}},
-	{{PadType::Yellow, VehicleType::Ship, true},  {691.2,       691.2,      691.2}},
+	{{PadType::Yellow, VehicleType::Ship, false}, {864,         864,         864,         864}},
+	{{PadType::Yellow, VehicleType::Ship, true},  {691.2,       691.2,       691.2,       691.2}},
 
-	{{PadType::Yellow, VehicleType::Ball, false}, {518.4,  518.4,    518.4}},
-	{{PadType::Yellow, VehicleType::Ball, true},  {414.72002,  414.72002,  414.72002}},
+	{{PadType::Yellow, VehicleType::Ball, false}, {518.4000206, 518.4000206, 518.4000206, 518.4000206}},
+	{{PadType::Yellow, VehicleType::Ball, true},  {414.7200165, 414.7200165, 414.7200165, 414.7200165}},
 
-	{{PadType::Yellow, VehicleType::Ufo, false},  {573.48,      432,        432}},
-	{{PadType::Yellow, VehicleType::Ufo, true},   {458.784,     691.2,      691.2}},
-
-
-	{{PadType::Blue, VehicleType::Cube, false},   {-345.6,    -345.6,     -345.6}},
-	{{PadType::Blue, VehicleType::Cube, true},    {-276.48,    -276.48,    -276.48}},
-
-	{{PadType::Blue, VehicleType::Ship, false},   {-229.392,    -345.6,     -345.6}},
-	{{PadType::Blue, VehicleType::Ship, true},    {-183.519,    -276.48,    -276.48}},
-
-	{{PadType::Blue, VehicleType::Ball, false},   {-160.574397, -207.36001, -207.36001}},
-	{{PadType::Blue, VehicleType::Ball, true},    {-128.463298, -165.88801, -165.88801}},
-
-	{{PadType::Blue, VehicleType::Ufo, false},    {-229.392,    -345.6,     -345.6}},
-	{{PadType::Blue, VehicleType::Ufo, true},     {-183.519,    -276.48,    -276.48}},
+	{{PadType::Yellow, VehicleType::Ufo, false},  {573.48,      432,         432,         432}},
+	{{PadType::Yellow, VehicleType::Ufo, true},   {458.784,     691.2,       691.2,       691.2}},
 
 
-	{{PadType::Pink, VehicleType::Cube, false},   {561.6,       561.6,      561.6}},
-	{{PadType::Pink, VehicleType::Cube, true},    {449.28,      449.28,     449.28}},
+	{{PadType::Blue, VehicleType::Cube, false},   {-345.6,      -345.6,      -345.6,      -345.6}},
+	{{PadType::Blue, VehicleType::Cube, true},    {-276.48,     -276.48,     -276.48,     -276.48}},
 
-	{{PadType::Pink, VehicleType::Ship, false},   {302.4,       302.4,      302.4}},
-	{{PadType::Pink, VehicleType::Ship, true},    {241.92,      241.92,     241.92}},
+	{{PadType::Blue, VehicleType::Ship, false},   {-229.392,    -345.6,      -345.6,      -345.6}},
+	{{PadType::Blue, VehicleType::Ship, true},    {-183.519,    -276.48,     -276.48,     -165.888}},
 
-	{{PadType::Pink, VehicleType::Ball, false},   {362.88001,  362.88001,  362.88001}},
-	{{PadType::Pink, VehicleType::Ball, true},    {290.30401,   290.30401,  290.30401}},
+	{{PadType::Blue, VehicleType::Ball, false},   {-160.574397, -207.360008, -207.360008, -207.360008}},
+	{{PadType::Blue, VehicleType::Ball, true},    {-128.463298, -165.888007, -165.888007, -165.888007}},
 
-	{{PadType::Pink, VehicleType::Ufo, false},    {345.6,      345.6,      345.6}},
-	{{PadType::Pink, VehicleType::Ufo, true},     {276.48,     276.48,     276.48}}
+	{{PadType::Blue, VehicleType::Ufo, false},    {-229.392,    -345.6,      -345.6,      -345.6}},
+	{{PadType::Blue, VehicleType::Ufo, true},     {-183.519,    -276.48,     -276.48,     -276.48}},
+
+
+	{{PadType::Pink, VehicleType::Cube, false},   {561.6,       561.6,       561.6,       561.6}},
+	{{PadType::Pink, VehicleType::Cube, true},    {449.28,      449.28,      449.28,      449.28}},
+
+	{{PadType::Pink, VehicleType::Ship, false},   {302.4,       302.4,       302.4,       302.4}},
+	{{PadType::Pink, VehicleType::Ship, true},    {241.92,      241.92,      241.92,      241.92}},
+
+	{{PadType::Pink, VehicleType::Ball, false},   {362.880014,  362.880014,  362.880014,  362.880014}},
+	{{PadType::Pink, VehicleType::Ball, true},    {290.304012,  290.304012,  290.304012,  290.304012}},
+
+	{{PadType::Pink, VehicleType::Ufo, false},    {345.6,       345.6,       345.6,       345.6}},
+	{{PadType::Pink, VehicleType::Ufo, true},     {276.48,      276.48,      276.48,      276.48}}
 };
 
 void Pad::collide(Player& p) const {

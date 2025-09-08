@@ -11,8 +11,8 @@
 	(indexed by speed) then a lighter acceleration would be used.
 */
 constexpr double velocity_thresholds[] = {
-	103.485494592,
 	101.541492,
+	103.485494592,
 	103.377492,
 	103.809492
 };
@@ -133,10 +133,17 @@ Vehicle ship() {
 		p.buffer = false;
 
 		// Max velocity
-		p.velocity = std::clamp(p.velocity, 
+		/*p.velocity = std::clamp(p.velocity, 
 			p.small ? -406.566 : -345.6,
 			p.small ? 508.248 : 432.0
-		);
+		);*/
+
+		// Slopes complicate things like "maximum velocity"
+		if (p.input)
+			p.velocity = std::min(p.velocity, p.small ? 508.248 : 432.0);
+		else
+			p.velocity = std::max(p.velocity, p.small ? -406.566 : -345.6);
+
 
 		if (p.gravTop(p) > p.gravCeiling()) {
 			if (p.velocity > 0) {
@@ -321,7 +328,7 @@ Vehicle wave() {
 	v.type = VehicleType::Wave;
 	v.enter = +[](Player& p, Object const* o, bool) {
 		p.actions.push_back(+[](Player& p) {
-			p.size = Vec2D(10, 10);
+			p.size = p.small ? Vec2D(6, 6) : Vec2D(10, 10);
 		});
 
 		p.floor = std::max(0., std::ceil((o->pos.y - 180) / 30.)) * 30;
@@ -331,14 +338,14 @@ Vehicle wave() {
 	v.clamp = +[](Player& p) {
 		p.velocity = (p.input * 2 - 1) * player_speeds[p.speed] * (p.small ? 2 : 1);
 
-		if (p.grav(p.pos.y) - p.grav(10) <= p.gravFloor() && !p.input) {
-			p.pos.y = p.grav(p.gravFloor()) + p.grav(10);
+		if (p.grav(p.pos.y) - p.grav(p.size.y) <= p.gravFloor() && !p.input) {
+			p.pos.y = p.grav(p.gravFloor()) + p.grav(p.size.y);
 			p.velocity = 0;
 		}
 
-		if (p.grav(p.pos.y) + p.grav(10) >= p.gravCeiling() && p.input) {
+		if (p.grav(p.pos.y) + p.grav(p.size.y) >= p.gravCeiling() && p.input) {
 			p.velocity = 0;
-			p.pos.y = p.grav(p.gravCeiling()) - p.grav(10);
+			p.pos.y = p.grav(p.gravCeiling()) - p.grav(p.size.y);
 		}
 	};
 	v.update = +[](Player& p) {

@@ -57,7 +57,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 	objs(({ 1202, 1262 }), Block, 30, 3)
 	objs(({ 1220, 1264 }), Block, 30, 6)
 	objs(({ 196, 219, 1911 }), Block, 15, 8)
-	objs(({ 662, 664 }), Block, 30, 15)
+	objs(({ 662, 663, 664 }), Block, 30, 15)
 	objs(({ 1561 }), Block, 30, 10)
 	objs(({ 1567 }), Block, 15, 10)
 	objs(({ 1566 }), Block, 12, 12)
@@ -166,6 +166,13 @@ Object::Object(Vec2D s, std::unordered_map<int, std::string>&& fields) {
 	pos.y = stod_def(fields[3]);
 	rotation = -stod_def(fields[6]);
 	prio = 0;
+
+	float scale = stod_def(fields[32], 1);
+	float scalex = stod_def(fields[128], 1);
+	float scaley = stod_def(fields[129], 1);
+
+	size.x *= scale * scalex;
+	size.y *= scale * scaley;
 }
 
 bool Object::touching(Player const& player) const {

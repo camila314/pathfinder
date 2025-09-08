@@ -75,7 +75,7 @@ void Player::preCollision(bool pressed) {
 
 void Player::postCollision() {
 	// Size portal only affects hitbox size at the end of frame
-	if (small != prevPlayer().small) {
+	if (small != prevPlayer().small || &prevPlayer() == this) {
 		size = small ? (size * 0.6) : (size / 0.6);
 	}
 
