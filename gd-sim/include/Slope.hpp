@@ -19,6 +19,7 @@ struct Slope : public Block {
     int gravOrient(Player const& p) const;
 
     double angle() const;
+    bool isFacingUp() const;
 
     /**
      * The Y position that a player should be snapped to if on the slope.

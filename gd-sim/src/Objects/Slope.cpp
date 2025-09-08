@@ -27,6 +27,10 @@ Slope::Slope(Vec2D size, std::unordered_map<int, std::string>&& fields) : Block(
 	rotation = 0;
 }
 
+bool Slope::isFacingUp() const {
+	return orientation < 2;
+}
+
 int Slope::gravOrient(Player const& p) const {
 	int orient = orientation;
 
@@ -54,11 +58,11 @@ double Slope::angle() const {
 
 double Slope::expectedY(Player const& p) const {
 	// I do not fully understand this.
-	double ydist = p.prevPlayer().grav(orientation > 1 ? -1 : 1) * p.size.y * sqrt(pow(tan(angle()), 2) + 1) / 2;
+	double ydist = p.prevPlayer().grav(isFacingUp() ? 1 : -1) * p.size.y * sqrt(pow(tan(angle()), 2) + 1) / 2;
 	float posRelative = (size.y / size.x) * (p.pos.x - getLeft());
 
-	// Uphill vs downhill, relative to player gravity
-	if ((angle() > 0) ^ p.prevPlayer().upsideDown) {
+	// Uphill vs downhill
+	if ((angle() > 0)) {
 		return getBottom() + std::min(posRelative + ydist, size.y + p.size.y / 2.0);
 	}
 	else
@@ -181,13 +185,20 @@ void Slope::collide(Player& p) const {
 		or you're no longer touching the previous slope.
 	*/
 	if (!pSlope || !pSlope->touching(p) || (pSlope->gravOrient(p) == gravOrient(p) && p.grav(expectedY(p)) > p.grav(pSlope->expectedY(p))) || pSlope->id == id) {
-		double pAngle = atan((p.velocity * p.dt) / (player_speeds[p.speed] * p.dt));
+		double pAngle = atan((p.prevPlayer().velocity * p.dt) / (player_speeds[p.speed] * p.dt));
 
 		bool hasSlope = p.prevPlayer().slopeData.slope.has_value();
 
 		//  Is player traveling at the right angle to contact the slope
 		bool projectedHit = orientation == 1 ? (pAngle * 5.0 <= angle()) : (pAngle <= angle());
-		bool clip = p.grav(expectedY(p)) >= p.grav(p.pos.y);
+
+		if (p.vehicle.type == VehicleType::Wave)
+			projectedHit = true;
+
+
+		// Downhill slopes attach you to the slope faster uphill
+		float expAdjust = expectedY(p)  + (angle() > 0 ? 0 : 2);
+		bool clip = isFacingUp() ? (expAdjust >= p.pos.y) : (expAdjust <= p.pos.y);
 
 		// Downhill slopes snap you down
 		bool snapDown = orientation == 1 && p.velocity > 0 && p.pos.x - getLeft() > 0;
@@ -222,15 +233,15 @@ bool Slope::touching(Player const& p) const {
 	}
 
 	// TODO finish the last two.
-	switch (gravOrient(p)) {
+	switch (orientation) {
 		case 0:
-			return p.grav(expectedY(p)) >= p.grav(p.pos.y);
+			return expectedY(p) >= p.pos.y;
 		case 1:
-			return p.grav(expectedY(p.prevPlayer())) >= p.grav(p.pos.y);
+			return expectedY(p) + 2 >= p.pos.y;
 		case 2:
-			return p.grav(expectedY(p)) <= p.grav(p.pos.y);//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
+			return expectedY(p) + 2 <= p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
 		case 3:
-			return p.grav(expectedY(p)) <= p.grav(p.pos.y);//frontBottom.x - pos.x <= frontBottom.y - pos.y;
+			return expectedY(p) <= p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
 		default:
 			return false;
 	}

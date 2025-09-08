@@ -9,7 +9,7 @@
 	"geode": "4.8.0",
 	"name": "Pathfinder",
 	"developer": "camila314",
-	"version": "v1.0.0-beta.20",
+	"version": "v1.0.0-beta.21",
 	"dependencies": [
 		{
 			"id": "geode.node-ids",
@@ -23,5 +23,9 @@
 		]
 	},
 	"description": "Beat levels automatically!",
-	"tags": ["offline", "gameplay", "utility"]
+	"tags": ["offline", "gameplay", "utility"],
+	"links": {
+	    "community": "https://discord.com/invite/u9m7kqyqxu",
+	    "source": "https://github.com/camila314/pathfinder"
+	}
 }

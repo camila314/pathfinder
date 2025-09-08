@@ -1,3 +1,10 @@
+# beta 21
+
+- Full (hopefully) wave support
+- More slope fixes
+- Fixed bug where ship was inaccurate in beta 20
+- Other minor fixes
+
 # beta 20
 
 - Lots of slope fixes

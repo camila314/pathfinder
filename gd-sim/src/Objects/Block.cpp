@@ -124,13 +124,17 @@ void Block::collide(Player& p) const {
 	*/
 	double bottom = p.gravBottom(p);
 	if (p.slopeData.slope) {
-		bottom = bottom + sin(p.slopeData.slope->angle()) * p.size.y / 2;
-		clip = 7;
+		if (p.slopeData.slope->angle() > 0) {
+			bottom = bottom + sin(p.slopeData.slope->angle()) * p.size.y / 2;
+			clip = 7;
 
-		// Prevent block from catching on slope when it shouldn't
-		// TODO this should probably go somewhere else...
-		if (p.gravTop(*this) - bottom < 2)
-			return;
+			// Prevent block from catching on slope when it shouldn't
+			// TODO this should probably go somewhere else...
+			if (p.gravTop(*this) - bottom < 2) {
+				std::cout << "wow whats this?\n";
+				return;
+			}
+		}
 	}
 
 	bool padHitBefore = (!p.prevPlayer().grounded && p.prevPlayer().velocity <= 0 && p.velocity > 0);

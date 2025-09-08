@@ -18,10 +18,11 @@ std::vector<CCPoint> s_inputPoints;
 std::string realTxt = "";
 static int frames = 0;
 
-class Replay2 : public gdr::Replay<Replay2, gdr::Input> {
+class Replay2 : public gdr::Replay<Replay2, gdr::Input<"">> {
  public:
-	Replay2() : Replay("GD Sim", "1.0"){}
+	Replay2() : Replay("Pathfinder", 1){}
 };
+
 
 #ifdef _WIN32
 #include <Windows.h>
@@ -42,9 +43,13 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 	std::ifstream macro(path, std::ios::binary);
 	std::vector<uint8_t> data((std::istreambuf_iterator<char>(macro)), std::istreambuf_iterator<char>());
 
-	auto replay = Replay2::importData(data, "1.0");
+	auto replay = Replay2::importData(data);
+
+	if (replay.isErr())
+		return;
+
 	std::string inputs = "0";
-	for (auto& i : replay.inputs) {
+	for (auto& i : replay.unwrap().inputs) {
 		char down = i.down ? '1' : '0';
 
 	    int frameDiff = i.frame - inputs.size();

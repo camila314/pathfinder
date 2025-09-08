@@ -4,9 +4,9 @@
 #include <gdr/gdr.hpp>
 #include "pathfinder.hpp"
 
-class Replay2 : public gdr::Replay<Replay2, gdr::Input> {
+class Replay2 : public gdr::Replay<Replay2, gdr::Input<"">> {
  public:
-	Replay2() : Replay("GD Sim", "1.0"){}
+	Replay2() : Replay("Pathfinder", 1){}
 };
 
 struct Level2 : public Level {
@@ -71,7 +71,9 @@ std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& st
 
 		std::set<uint16_t> bestInputs;
 		int bestFrame = frame;
-		for (int i = 0; i < 30; i++) {
+
+		constexpr int iterations = 300; //30
+		for (int i = 0; i < iterations; i++) {
 
 			std::set<uint16_t> inputs;
 			for (int i = 0; i < 30; i++) {
@@ -136,5 +138,5 @@ std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& st
 	    if (i.frame > 1 && i.button != i.prevPlayer().button)
 	        output.inputs.push_back(gdr::Input(i.frame, 1, false, i.button));
 	}
-	return output.exportData();
+	return output.exportData().unwrapOr({});
 }
