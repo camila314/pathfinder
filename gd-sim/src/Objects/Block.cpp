@@ -131,7 +131,6 @@ void Block::collide(Player& p) const {
 			// Prevent block from catching on slope when it shouldn't
 			// TODO this should probably go somewhere else...
 			if (p.gravTop(*this) - bottom < 2) {
-				std::cout << "wow whats this?\n";
 				return;
 			}
 		}

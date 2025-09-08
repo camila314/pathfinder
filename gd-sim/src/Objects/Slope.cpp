@@ -115,7 +115,6 @@ void Slope::calc(Player& p) const {
 			// Gotta eject on the next frame
 			p.actions.push_back([vel](Player& p) {
 				p.velocity = roundVel(vel, p.upsideDown);
-				std::cout << "vel is " << p.velocity << std::endl;
 
 				p.slopeData.slope = {};
 				p.slopeData.elapsed = 0;
