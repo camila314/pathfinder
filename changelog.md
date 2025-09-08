@@ -1,3 +1,6 @@
+# beta 21.1 (minor fix)
+- Fixed bug where hitting pads while wave caused an error
+
 # beta 21
 
 - Full (hopefully) wave support
