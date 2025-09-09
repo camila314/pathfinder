@@ -82,7 +82,7 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 	try {
 
 		#if _WIN32
-		auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "build" / "gd-sim" / "gd-sim-test.exe";
+		auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "build" / "gd-sim" / "Debug" / "gd-sim-test.exe";
 		const auto out = subprocess::check_output({
 			pathToUtf8(dir),
 			pathToUtf8(lvlFile),

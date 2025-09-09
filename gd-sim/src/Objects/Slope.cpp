@@ -62,21 +62,15 @@ double Slope::expectedY(Player const& p) const {
 	float posRelative = (size.y / size.x) * (p.pos.x - getLeft());
 
 	// Uphill vs downhill
-	if ((angle() > 0)) {
-		return getBottom() + std::min(posRelative + ydist, size.y + p.size.y / 2.0);
+	if (angle() > 0) {
+		return getBottom() + std::min(ydist + posRelative, size.y + p.size.y / 2.0);
 	}
 	else
-		return getTop() - std::max(posRelative - ydist, -p.size.y / 2.0);
+		return getTop() + std::min(ydist - posRelative, p.size.y / 2.0);
 }
 
 /// See Slope.hpp for why this is a separate function
 void Slope::calc(Player& p) const {
-	// No slope calculations for you!
-	if (p.vehicle.type == VehicleType::Wave) {
-		p.dead = true;
-		return;
-	}
-
 	if (gravOrient(p.prevPlayer()) == 0) {
 		// Regular uphill slope
 
@@ -169,6 +163,12 @@ void Slope::calc(Player& p) const {
 }
 
 void Slope::collide(Player& p) const {
+	// No slope calculations for you!
+	if (p.vehicle.type == VehicleType::Wave) {
+		p.dead = true;
+		return;
+	}
+
 	// When you hit a downhill slope before your center hits the leftmost side, it's treated like a block
 	if (!p.prevPlayer().slopeData.slope && orientation == 1 && p.pos.x - getLeft() < 0 && p.velocity <= 0) {
 		p.pos.y = getTop() + p.size.y / 2;
@@ -190,10 +190,6 @@ void Slope::collide(Player& p) const {
 
 		//  Is player traveling at the right angle to contact the slope
 		bool projectedHit = orientation == 1 ? (pAngle * 5.0 <= angle()) : (pAngle <= angle());
-
-		if (p.vehicle.type == VehicleType::Wave)
-			projectedHit = true;
-
 
 		// Downhill slopes attach you to the slope faster uphill
 		float expAdjust = expectedY(p)  + (angle() > 0 ? 0 : 2);

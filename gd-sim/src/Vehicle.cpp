@@ -74,7 +74,7 @@ Vehicle cube() {
 			p.buffer = false;
 		}
 
-		if (p.upsideDown && p.input && p.coyoteFrames < 11) {
+		if (p.upsideDown && p.input && p.coyoteFrames < 10) {
 			jump = true;
 			p.buffer = false;
 		}
@@ -336,20 +336,21 @@ Vehicle wave() {
 	};
 
 	v.clamp = +[](Player& p) {
-		p.velocity = (p.input * 2 - 1) * player_speeds[p.speed] * (p.small ? 2 : 1);
+		p.velocity = 0;
 
-		if (p.grav(p.pos.y) - p.grav(p.size.y) <= p.gravFloor() && !p.input) {
-			p.pos.y = p.grav(p.gravFloor()) + p.grav(p.size.y);
-			p.velocity = 0;
+		if (p.grav(p.pos.y - p.grav(p.size.y)) <= p.gravFloor() && !p.input) {
+			p.pos.y = p.grav(p.gravFloor() + p.size.y);
+		} else if (p.grav(p.pos.y + p.grav(p.size.y)) >= p.gravCeiling() && p.input) {
+			p.pos.y = p.grav(p.gravCeiling() - p.size.y);
+		} else {
+			p.velocity = (p.input * 2 - 1) * player_speeds[p.speed] * (p.small ? 2 : 1);
 		}
 
-		if (p.grav(p.pos.y) + p.grav(p.size.y) >= p.gravCeiling() && p.input) {
-			p.velocity = 0;
-			p.pos.y = p.grav(p.gravCeiling()) - p.grav(p.size.y);
-		}
+		//p.rotation = (p.input ? 1 : -1) * (p.small ? 63.4258423 : 45);
 	};
 	v.update = +[](Player& p) {
 		p.acceleration = 0;
+		p.buffer = false;
 	};
 
 	return v;
