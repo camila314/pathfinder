@@ -17,6 +17,15 @@ inline double player_speeds[4] = {
 	468.0001388338566
 };
 
+/// Used in player rotation. Similar to m_playerSpeed member variable
+inline float player_speedmults[5] = {
+	0.9,
+	0.7,
+	1.1,
+	1.3,
+	1.6	
+};
+
 double roundVel(double velocity, bool upsideDown);
 
 struct Object;
@@ -33,7 +42,6 @@ struct Player : public Entity {
 	double timeElapsed;
 	double acceleration;
 	double velocity;
-	double rotVelocity;
 
 	/// See util.hpp for what cow_set is
 	cow_set<int> usedEffects;

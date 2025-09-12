@@ -98,6 +98,8 @@ public:
     }
 };
 
+float slerp(float fromAngle, float toAngle, float t);
+
 /// Combine two values into one for the purposes of switches
 constexpr int case_and(auto a, auto b) {
     return static_cast<int>(a) | (static_cast<int>(b) << 4);

@@ -151,8 +151,8 @@ Player& Level::runFrame(bool pressed, float dt) {
 	if (debug) {
 		std::cout << "Frame " << gameStates.size() << std::fixed << std::setprecision(8)
 				  << " X " << p.pos.x << " Y " << p.pos.y - 15 << " Vel " << p.velocity
-				  << " Accel " << p.acceleration << " G " << p.grounded << " Coll " << numCollisions
-				  << std::endl;
+				  << " Accel " << p.acceleration << " Rot " << p.rotation
+ 				  << std::endl;
 
 		if (p.button != gameStates.back().button) {
 			std::cout << "Input X " << p.pos.x << " Y " << p.pos.y - 15 << std::endl;

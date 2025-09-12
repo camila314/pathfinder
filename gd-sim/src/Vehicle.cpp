@@ -17,6 +17,20 @@ constexpr double velocity_thresholds[] = {
 	103.809492
 };
 
+/// When the cube lands, it's rotation is snapped to whichever 90 degree angle is closest
+float normalizeRotation(Player const& p, float angle) {
+    float playerRotation = (int)p.rotation % 360;
+
+    float diff = std::fmod(playerRotation - angle, 90.0f);
+    if (diff < 0)
+        diff += 90.0f;
+
+    if (std::abs(playerRotation - angle) < std::abs(diff))
+        return angle;
+    else
+        return playerRotation - diff;
+}
+
 Vehicle cube() {
 	Vehicle v;
 	 v.type = VehicleType::Cube;
@@ -59,7 +73,6 @@ Vehicle cube() {
 
 		//TODO add rotation
 		p.rotation = 0;
-		p.rotVelocity = 0;//415.3848;
 
 		bool jump = false;
 
@@ -69,8 +82,6 @@ Vehicle cube() {
 			} else {
 				p.setVelocity(0, true);
 			}
-			p.rotation = 0;
-			p.rotVelocity = 0;
 			p.buffer = false;
 		}
 
@@ -154,8 +165,6 @@ Vehicle ship() {
 	};
 
 	v.update = +[](Player& p) {
-		p.rotation = 0; // TODO ship rotation lmao
-		p.rotVelocity = 0;
 		p.buffer = false;
 	
 		if (p.grounded)
@@ -175,6 +184,14 @@ Vehicle ship() {
 
 		if (p.grav(p.pos.y) >= p.gravCeiling()) {
 			p.setVelocity(0, false);
+		}
+
+		// Rotation
+		auto diff = p.pos - p.prevPlayer().pos;
+
+		// Unknown why this happens
+		if (p.dt * 72 <= std::pow(diff.x, 2) + std::pow(diff.y, 2)) {
+			p.rotation = slerp(p.rotation * 0.017453292f, atan2(-diff.y, diff.x), (p.dt * 60) * 0.15f) * 57.29578f;
 		}
 	};
 
@@ -198,8 +215,6 @@ Vehicle ball() {
 
 	v.enter = +[](Player& p, Object const* o, bool n) {
 		if (n) {
-			p.rotVelocity = 0;
-
 			if (p.input)
 				p.vehicleBuffer = true;
 

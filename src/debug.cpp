@@ -229,7 +229,8 @@ class $modify(GJBaseGameLayer) {
 				//log::info("{}", reference_cast<long>(m_player1->m_yVelocity));
 				double xvel = (m_player1->getPositionX() - prevX);
 
-				auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240);
+				auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f} Rot {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240, m_player1->getRotation());
+				
 				log::info("{}", dat);
 				realTxt += dat + "\n";
 

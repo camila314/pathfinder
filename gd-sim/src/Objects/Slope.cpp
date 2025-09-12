@@ -232,7 +232,7 @@ bool Slope::touching(Player const& p) const {
 		case 0:
 			return expectedY(p) >= p.pos.y;
 		case 1:
-			return expectedY(p) + 2 >= p.pos.y;
+			return expectedY(p) - 2 >= p.pos.y;
 		case 2:
 			return expectedY(p) + 2 <= p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
 		case 3:
