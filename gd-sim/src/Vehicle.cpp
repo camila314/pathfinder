@@ -286,7 +286,8 @@ Vehicle ufo() {
 	v.type = VehicleType::Ufo;
 	v.enter = +[](Player& p, Object const* o, bool n) {
 		if (n) {
-			if (p.prevPlayer().vehicle.type == VehicleType::Ship && p.input)
+			VehicleType pv = p.prevPlayer().vehicle.type;
+			if ((pv == VehicleType::Ship || pv == VehicleType::Wave) && p.input)
 				p.buffer = true;
 
 			p.velocity = p.velocity / (p.prevPlayer().vehicle.type == VehicleType::Ship ? 4 : 2);

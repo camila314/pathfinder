@@ -72,7 +72,7 @@ std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& st
 		std::set<uint16_t> bestInputs;
 		int bestFrame = frame;
 
-		constexpr int iterations = 300; //30
+		constexpr int iterations = 30; //30
 		for (int i = 0; i < iterations; i++) {
 
 			std::set<uint16_t> inputs;

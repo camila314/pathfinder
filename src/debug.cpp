@@ -216,33 +216,29 @@ class $modify(LevelEditorLayer) {
 };
 
 class $modify(GJBaseGameLayer) {
-	void processCommands(float dt) {
-		if (true) {
-			GJBaseGameLayer::processCommands(1 / 240.);
+	void updateCamera(float dt) {
+		GJBaseGameLayer::updateCamera(1 / 4.);
 
-			if (/*PlayLayer::get()*/ true) {
-				static double prevVel = 0;
-				static double prevX = 0;
-				static double prevXVel = 0;	
+		static double prevVel = 0;
+		static double prevX = 0;
+		static double prevXVel = 0;	
 
-				double vel = m_player1->m_yVelocity * 60 * 0.9 * (m_player1->m_isUpsideDown ? -1 : 1);
-				//log::info("{}", reference_cast<long>(m_player1->m_yVelocity));
-				double xvel = (m_player1->getPositionX() - prevX);
+		double vel = m_player1->m_yVelocity * 60 * 0.9 * (m_player1->m_isUpsideDown ? -1 : 1);
+		//log::info("{}", reference_cast<long>(m_player1->m_yVelocity));
+		double xvel = (m_player1->getPositionX() - prevX);
 
-				auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f} Rot {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240, m_player1->getRotation());
-				
-				log::info("{}", dat);
-				realTxt += dat + "\n";
+		auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f} Rot {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240, m_player1->getRotation());
+		
+		log::info("{}", dat);
 
-				frames++;
-				prevVel = vel;
-				prevXVel = xvel;
-				prevX = m_player1->getPositionX();
+		frames++;
+		prevVel = vel;
+		prevXVel = xvel;
+		prevX = m_player1->getPositionX();
 
-				s_realPoints.push_back(m_player1->getPosition());
-			}
-		} else {
-			GJBaseGameLayer::processCommands(dt);
+		if (PlayLayer::get()) {
+			realTxt += dat + "\n";
+			s_realPoints.push_back(m_player1->getPosition());
 		}
 	}
 };

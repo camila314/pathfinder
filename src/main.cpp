@@ -45,7 +45,7 @@ public:
             }
 
             pick(PickMode::SaveFile, {
-                saveDir / fmt::format("{}.gdr", m_levelName),
+                saveDir / fmt::format("{}.gdr2", m_levelName),
                 {{
                     std::string("Macro File"),
                     std::unordered_set {std::string("gdr")}
