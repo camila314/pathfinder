@@ -104,7 +104,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 	objs(({ 184 }), Sawblade, 20.4, 20.4)
 	objs(({ 185 }), Sawblade, 2.8500001, 2.8500001)
 	objs(({ 187, 741 }), Sawblade, 21.960001, 21.960001)
-	objs(({ 188, 742 }), Sawblade, 12.6, 12.6)
+	objs(({ 188, 742 }), Sawblade, 12.6000004, 12.6000004)
 	objs(({ 397, 1708 }), Sawblade, 28.9, 28.9)
 	objs(({ 398, 1709 }), Sawblade, 17.44, 17.44)
 	objs(({ 399, 1710 }), Sawblade, 12.900001, 12.900001)
@@ -141,7 +141,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 
 	objs(({
 		289, 294, 299, 305, 309, 315, 321, 326, 331, 337,
-		343, 349, 353, 366, 371, 483, 492, 651, 665,
+		343, 349, 353, 371, 483, 492, 651, 665,
 		673, 709, 711, 726, 728, 886, 1338, 1341, 1344,
 		1723, 1743, 1745, 1747, 1749, 1906
 	}), Slope, 30, 30)
@@ -153,7 +153,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 		674, 710, 712, 727, 729, 887, 1339, 1342, 1345,
 		1724, 1744, 1746, 1748, 1750, 1907
 	}), Slope, 60, 30)
-	objs(({ 364, 1718 }), SlopeHazard, 60, 30);
+	objs(({ 364, 366, 1718 }), SlopeHazard, 60, 30);
 
 	// Any block that isnt' defined is ignored
 	return {};

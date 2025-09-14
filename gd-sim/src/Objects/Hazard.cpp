@@ -11,10 +11,10 @@ bool Sawblade::touching(Player const& p) const {
 	// Hitbox detection for circle
 
 	Vec2D corners[4] = {
-		Vec2D(p.getLeft(), p.getBottom()).rotate(p.rotation, p.pos),
-		Vec2D(p.getRight(), p.getBottom()).rotate(p.rotation, p.pos),
-		Vec2D(p.getRight(), p.getTop()).rotate(p.rotation, p.pos),
-		Vec2D(p.getLeft(), p.getTop()).rotate(p.rotation, p.pos)
+		Vec2D(p.getLeft(), p.getBottom()),
+		Vec2D(p.getRight(), p.getBottom()),
+		Vec2D(p.getRight(), p.getTop()),
+		Vec2D(p.getLeft(), p.getTop())
 	};
 
 	float radius = size.x;

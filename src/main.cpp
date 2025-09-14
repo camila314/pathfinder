@@ -48,7 +48,7 @@ public:
                 saveDir / fmt::format("{}.gdr2", m_levelName),
                 {{
                     std::string("Macro File"),
-                    std::unordered_set {std::string("gdr")}
+                    std::unordered_set {std::string("gdr2")}
                 }}
             }).listen([this, macro](auto path) {
                 if (path->isOk()) {

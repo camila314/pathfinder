@@ -11,7 +11,7 @@ add_library(${PROJECT_NAME} SHARED
     src/main.cpp
     src/pathfinder.cpp
     src/checker.cpp
-    $<$<CONFIG:Debug>:src/debug.cpp>
+    src/debug.cpp
     # Add any extra C++ source files here
 )
 
@@ -37,5 +37,6 @@ endif()
 
 
 setup_geode_mod(${PROJECT_NAME})
+target_compile_definitions(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:-DDEBUG_MODE=1>)
 target_compile_options(${PROJECT_NAME} PRIVATE $<$<CONFIG:Debug>:-g> -O3 -fno-math-errno -fno-trapping-math -fvisibility=hidden -fomit-frame-pointer)
 target_link_libraries(${PROJECT_NAME} gd-sim UIBuilder libGDR)

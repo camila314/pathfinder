@@ -90,3 +90,85 @@ bool intersectOneWay(Entity const& a, Entity const& b) {
 bool Entity::intersects(Entity const& b) const {
     return intersectOneWay(*this, b) && intersectOneWay(b, *this);
 }
+
+
+/*using Vec2 = Vec2D;
+// Return normalized perpendicular axis from two points
+static Vec2 edgeToAxis(const Vec2D& p1, const Vec2& p2) {
+    Vec2 edge = {p2.x - p1.x, p2.y - p1.y};
+    Vec2 axis = {-edge.y, edge.x}; // perpendicular
+
+    float len = std::sqrt(axis.x * axis.x + axis.y * axis.y);
+    if (len != 0.0f) {
+        axis.x /= len;
+        axis.y /= len;
+    }
+    return axis;
+}
+
+// Compute the four corners of a rectangle
+static void getCorners(const Entity& e, Vec2 outCorners[4]) {
+    float hw = e.size.x * 0.5f;
+    float hh = e.size.y * 0.5f;
+    float rad = deg2rad(e.rotation);
+
+    float cosA = std::cos(rad);
+    float sinA = std::sin(rad);
+
+    // Local unrotated corners
+    Vec2 local[4] = {
+        {-hw, -hh},
+        { hw, -hh},
+        { hw,  hh},
+        {-hw,  hh}
+    };
+
+    // Rotate + translate
+    for (int i = 0; i < 4; ++i) {
+        outCorners[i].x = e.pos.x + (local[i].x * cosA - local[i].y * sinA);
+        outCorners[i].y = e.pos.y + (local[i].x * sinA + local[i].y * cosA);
+    }
+}
+
+// Project rectangle corners onto an axis
+static void projectOntoAxis(const Vec2 corners[4], const Vec2& axis,
+                            float& min, float& max) {
+    min = max = corners[0].x * axis.x + corners[0].y * axis.y;
+    for (int i = 1; i < 4; ++i) {
+        float projection = corners[i].x * axis.x + corners[i].y * axis.y;
+        if (projection < min) min = projection;
+        if (projection > max) max = projection;
+    }
+}
+
+// ------------------------------------------------------------
+// Entity::collidesWith
+// ------------------------------------------------------------
+bool Entity::intersects(const Entity& other) const {
+    Vec2 cornersA[4];
+    Vec2 cornersB[4];
+    getCorners(*this, cornersA);
+    getCorners(other, cornersB);
+
+    // Axes to test: 2 unique from each rectangle
+    Vec2 axes[4] = {
+        edgeToAxis(cornersA[0], cornersA[1]),
+        edgeToAxis(cornersA[1], cornersA[2]),
+        edgeToAxis(cornersB[0], cornersB[1]),
+        edgeToAxis(cornersB[1], cornersB[2]),
+    };
+
+    // SAT check: if projections do NOT overlap on any axis -> no collision
+    for (int i = 0; i < 4; ++i) {
+        float minA, maxA, minB, maxB;
+        projectOntoAxis(cornersA, axes[i], minA, maxA);
+        projectOntoAxis(cornersB, axes[i], minB, maxB);
+
+        if (maxA < minB || maxB < minA)
+            return false; // Found separating axis
+    }
+
+    return true; // No separating axis found -> collision
+}*/
+
+

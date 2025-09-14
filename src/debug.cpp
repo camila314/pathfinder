@@ -12,6 +12,11 @@ using namespace geode::utils::file;
 #include <gdr/gdr.hpp>
 #include "subprocess.hpp"
 
+#ifndef DEBUG_MODE
+#include <Level.hpp>
+#include <sstream>
+#endif
+
 std::vector<CCPoint> s_realPoints;
 std::vector<CCPoint> s_simPoints;
 std::vector<CCPoint> s_inputPoints;
@@ -47,40 +52,33 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 
 	if (replay.isErr())
 		return;
+	auto inputs = replay.unwrap().inputs;
 
-	std::string inputs = "0";
-	for (auto& i : replay.unwrap().inputs) {
-		char down = i.down ? '1' : '0';
+	std::string encoded = "0";
+	bool currentHold = false;
+	log::info("max frame {}", inputs.back().frame);
 
-	    int frameDiff = i.frame - inputs.size();
-	    if (frameDiff < 0) {
-	        if (frameDiff == -1) {
-	            inputs[inputs.size() - 2] = inputs.back();
-	            inputs.back() = down;
-	            inputs += down;
-	        }
-	        continue;
-	    }
+	int maxFrame = inputs.back().frame;
+	for (int i = 1; i < maxFrame; ++i) {
+		if (i == inputs.front().frame) {
+			currentHold = inputs.front().down;
+			inputs.erase(inputs.begin());
+		}
 
-	    char back = inputs.back();
-	    for (int j = 0; j < frameDiff; j++) {
-	        inputs += back;
-	    }
-	    inputs += down;
+		encoded += currentHold ? '1' : '0';
 	}
-
-	for (int i = 0; i < 500; ++i)
-	    inputs += inputs.back();
 
 	auto lvlFile = Mod::get()->getSaveDir() / ".lvl";
 	auto inpFile = Mod::get()->getSaveDir() / ".inp";
 
 
 	writeString(lvlFile, level).unwrap();
-	writeString(inpFile, inputs).unwrap();
+	writeString(inpFile, encoded).unwrap();
 
+	std::string outbuf;
+
+	#if DEBUG_MODE
 	try {
-
 		#if _WIN32
 		auto dir = std::filesystem::path(__FILE__).parent_path().parent_path() / "build" / "gd-sim" / "Debug" / "gd-sim-test.exe";
 		const auto out = subprocess::check_output({
@@ -93,35 +91,66 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 		const auto out = subprocess::check_output({dir, lvlFile, inpFile});
 		#endif
 
-		writeString(Mod::get()->getSaveDir() / "sim.txt", &out.buf[0]).unwrap();
+		outbuf = std::string(&out.buf[0]);
+	} catch (const subprocess::CalledProcessError& e) {
+		log::error("{}", e.what());
+		return;
+	}
+	#else
+	{
+		std::stringstream stream;
+		std::streambuf* cout_orig = std::cout.rdbuf();
+		std::cout.rdbuf(stream.rdbuf());
 
+		Level lvl(level);
+	    lvl.debug = true;
+	    for (size_t i = 2; i < encoded.size(); ++i) {
+	        auto state = lvl.runFrame(encoded[i] == '1');
 
-		std::stringstream ss;
-		s_simPoints.clear();
-		s_inputPoints.clear();
-		for (auto& i : out.buf) {
-			ss << i;
-			if (i == '\n') {
-				std::string line = ss.str();
-				ss.str("");
+	        if (state.dead) {
+	            std::cout << "Macro failed at frame " << lvl.currentFrame() << std::endl;
+	            break;
+	        }
+	    }
 
-				if (line.find("Frame") == 0) {
-					int frame;
-					float x, y;
-					if (sscanf(line.c_str(), "Frame %d X %f Y %f", &frame, &x, &y) == 3) {
-						s_simPoints.push_back(ccp(x, y + 105));
-					}
-				} else if (line.find("Input") == 0) {
-					float x, y;
-					if (sscanf(line.c_str(), "Input X %f Y %f", &x, &y) == 2) {
-						s_inputPoints.push_back(ccp(x, y + 105));
-					}
+	    std::cout.rdbuf(cout_orig);
+
+	    outbuf = stream.str();
+	}
+	#endif
+
+	if (!writeString(Mod::get()->getSaveDir() / "sim.txt", outbuf).isOk()) {
+		log::error("Failed to write to {}", Mod::get()->getSaveDir() / "sim.txt");
+		return;
+	}
+
+	std::stringstream ss;
+	s_simPoints.clear();
+	s_inputPoints.clear();
+
+	for (auto& i : outbuf) {
+		ss << i;
+		if (i == '\n') {
+			std::string line = ss.str();
+			ss.str("");
+
+			if (line.find("Frame") == 0) {
+				int frame;
+				float x, y;
+				if (sscanf(line.c_str(), "Frame %d X %f Y %f", &frame, &x, &y) == 3) {
+					s_simPoints.push_back(ccp(x, y + 105));
+				}
+			} else if (line.find("Input") == 0) {
+				float x, y;
+				if (sscanf(line.c_str(), "Input X %f Y %f", &x, &y) == 2) {
+					s_inputPoints.push_back(ccp(x, y + 105));
 				}
 			}
 		}
-	} catch (const subprocess::CalledProcessError& e) {
-		log::error("{}", e.what());
 	}
+	/*} catch (const subprocess::CalledProcessError& e) {
+		log::error("{}", e.what());
+	}*/
 }
 
 class $modify(EditorPauseLayer) {

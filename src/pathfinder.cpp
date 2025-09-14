@@ -138,5 +138,6 @@ std::vector<uint8_t> pathfind(std::string const& lvlString, std::atomic_bool& st
 	    if (i.frame > 1 && i.button != i.prevPlayer().button)
 	        output.inputs.push_back(gdr::Input(i.frame, 1, false, i.button));
 	}
+
 	return output.exportData().unwrapOr({});
 }

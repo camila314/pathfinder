@@ -31,6 +31,16 @@ float normalizeRotation(Player const& p, float angle) {
         return playerRotation - diff;
 }
 
+/// Ship, UFO, Wave all have the same basic mechanism for rotation
+void rotateFly(Player& p, float mult) {
+	auto diff = p.pos - p.prevPlayer().pos;
+
+	// Unknown why this happens
+	if (p.dt * 72 <= std::pow(diff.x, 2) + std::pow(diff.y, 2)) {
+		p.rotation = slerp(p.rotation * 0.017453292f, atan2(diff.y, diff.x), (p.dt * 60) * mult) * 57.29578f;
+	}
+}
+
 Vehicle cube() {
 	Vehicle v;
 	 v.type = VehicleType::Cube;
@@ -92,26 +102,28 @@ Vehicle cube() {
 
 		if (jump) {
 			static double jumpHeights[] = {
-				573.48,
-				603.72,
-				616.68,
-				606.42,
+				573.481728,
+				603.7217172,
+				616.681728,
+				606.421728,
 			};
 
 			// On slopes, you jump higher depending on how long you've been on the slope
 			if (p.slopeData.slope && p.slopeData.slope->orientation == 0) {
 				auto time = std::clamp(10 * (p.timeElapsed - p.slopeData.elapsed), 0.4, 1.0);
 
-				static double slopeHeights[4] = {
+				/*static double slopeHeights[4] = {
 					322.345224,
 					399.889818,
 					497.224926,
 					600.643296
-				};
+				};*/
 
-				p.setVelocity(0.25 * time * slopeHeights[p.speed] + jumpHeights[p.speed], p.prevPlayer().input);
 
-				p.velocity = std::floor(1000 * p.velocity / 54.) * 54 / 1000.;
+				double vel = 0.9 * std::min(1.12 / p.slopeData.slope->angle(), 1.54) * (p.slopeData.slope->size.y * player_speeds[p.speed] / p.slopeData.slope->size.x);
+				p.setVelocity(0.25 * time * vel + jumpHeights[p.speed], p.prevPlayer().input);
+
+				//p.velocity = std::floor(1000 * p.velocity / 54.) * 54 / 1000.;
 				p.grounded = false;
 			} else {
 				p.setVelocity(jumpHeights[p.speed], p.prevPlayer().input);
@@ -186,13 +198,7 @@ Vehicle ship() {
 			p.setVelocity(0, false);
 		}
 
-		// Rotation
-		auto diff = p.pos - p.prevPlayer().pos;
-
-		// Unknown why this happens
-		if (p.dt * 72 <= std::pow(diff.x, 2) + std::pow(diff.y, 2)) {
-			p.rotation = slerp(p.rotation * 0.017453292f, atan2(-diff.y, diff.x), (p.dt * 60) * 0.15f) * 57.29578f;
-		}
+		rotateFly(p, 0.15f);
 	};
 
 	return v;
@@ -367,6 +373,8 @@ Vehicle wave() {
 	v.update = +[](Player& p) {
 		p.acceleration = 0;
 		p.buffer = false;
+
+		rotateFly(p, p.small ? 0.4 : 0.25);
 	};
 
 	return v;
