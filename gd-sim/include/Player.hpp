@@ -10,11 +10,12 @@
 
 
 /// Player X velocity per speed
-inline double player_speeds[4] = {
+inline double player_speeds[5] = {
 	251.16007972276924,
 	311.580093712804,
 	387.42014039710523,
-	468.0001388338566
+	468.0001388338566,
+	576.00020058307177
 };
 
 /// Used in player rotation. Similar to m_playerSpeed member variable

@@ -57,8 +57,9 @@ double Slope::angle() const {
 }
 
 double Slope::expectedY(Player const& p) const {
-	// I do not fully understand this.
-	double ydist = p.prevPlayer().grav(isFacingUp() ? 1 : -1) * p.size.y * sqrt(pow(tan(angle()), 2) + 1) / 2;
+	double ydist = (isFacingUp() ? 1 : -1) * (p.size.y / 2.f) / cosf(angle());//+ (((angle() > 0) ^ p.upsideDown) ? (p.prevPlayer().slopeData.slope ? 4 : 1) : 0);
+
+	//double ydist = p.prevPlayer().grav(isFacingUp() ? 1 : -1) * p.size.y * sqrt(pow(tan(angle()), 2) + 1) / 2;
 	float posRelative = (size.y / size.x) * (p.pos.x - getLeft());
 
 	// Uphill vs downhill
@@ -228,15 +229,16 @@ bool Slope::touching(Player const& p) const {
 	}
 
 	// TODO finish the last two.
+	//std::cout << "Input X " << p.pos.x << " Y " << expectedY(p) - 15 << std::endl;
 	switch (orientation) {
 		case 0:
-			return expectedY(p) >= p.pos.y;
+			return expectedY(p) > p.pos.y;
 		case 1:
-			return expectedY(p) - 2 >= p.pos.y;
+			return expectedY(p) > p.pos.y;
 		case 2:
-			return expectedY(p) + 2 <= p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
+			return expectedY(p) < p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
 		case 3:
-			return expectedY(p) <= p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
+			return expectedY(p) < p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
 		default:
 			return false;
 	}

@@ -50,6 +50,9 @@ Vehicle cube() {
 			if (p.prevPlayer().vehicle.type != VehicleType::Ball)
 				p.velocity = p.velocity / 2;
 
+			if (p.prevPlayer().vehicle.type == VehicleType::Wave)
+				p.velocity = p.velocity / 2;
+
 			if (p.prevPlayer().vehicle.type == VehicleType::Ship && p.input)
 				p.buffer = true;
 		}
@@ -156,16 +159,18 @@ Vehicle ship() {
 		p.buffer = false;
 
 		// Max velocity
-		/*p.velocity = std::clamp(p.velocity, 
+		p.velocity = std::clamp(p.velocity, 
 			p.small ? -406.566 : -345.6,
 			p.small ? 508.248 : 432.0
-		);*/
+		);
+
+		//TODO deal with slope velocity more consistently
 
 		// Slopes complicate things like "maximum velocity"
-		if (p.input)
+		/*if (p.input)
 			p.velocity = std::min(p.velocity, p.small ? 508.248 : 432.0);
 		else
-			p.velocity = std::max(p.velocity, p.small ? -406.566 : -345.6);
+			p.velocity = std::max(p.velocity, p.small ? -406.566 : -345.6);*/
 
 
 		if (p.gravTop(p) > p.gravCeiling()) {
@@ -216,6 +221,9 @@ Vehicle ball() {
 
 		if (p.grav(p.pos.y) >= p.gravCeiling() && p.velocity > 0) {
 			p.setVelocity(0, true);
+
+			if (p.input)
+				p.upsideDown = !p.upsideDown;
 		}
 	};
 
@@ -355,17 +363,24 @@ Vehicle wave() {
 
 		p.floor = std::max(0., std::ceil((o->pos.y - 180) / 30.)) * 30;
 		p.ceiling = p.floor + 300;
+		std::cout << "CEIL WAVE " << p.ceiling << std::endl;
+
 	};
 
 	v.clamp = +[](Player& p) {
-		p.velocity = 0;
+		float waveTop = p.grav(p.pos.y + p.grav(p.size.y)) ;
+		float waveBottom = p.grav(p.pos.y - p.grav(p.size.y));
 
-		if (p.grav(p.pos.y - p.grav(p.size.y)) <= p.gravFloor() && !p.input) {
+		p.velocity = (p.input * 2 - 1) * player_speeds[p.speed] * (p.small ? 2 : 1);
+
+		if (waveBottom <= p.gravFloor()) {
 			p.pos.y = p.grav(p.gravFloor() + p.size.y);
-		} else if (p.grav(p.pos.y + p.grav(p.size.y)) >= p.gravCeiling() && p.input) {
+			if (waveBottom == p.gravFloor() && !p.input)
+				p.velocity = 0;
+		} else if (waveTop >= p.gravCeiling()) {
 			p.pos.y = p.grav(p.gravCeiling() - p.size.y);
-		} else {
-			p.velocity = (p.input * 2 - 1) * player_speeds[p.speed] * (p.small ? 2 : 1);
+			if (waveTop == p.gravCeiling() && p.input)
+				p.velocity = 0;
 		}
 
 		//p.rotation = (p.input ? 1 : -1) * (p.small ? 63.4258423 : 45);
