@@ -14,6 +14,7 @@ constexpr double velocity_thresholds[] = {
 	101.541492,
 	103.485494592,
 	103.377492,
+	103.809492,
 	103.809492
 };
 
@@ -75,6 +76,7 @@ Vehicle cube() {
 			-2747.52,
 			-2794.1082, 
 			-2786.4,
+			-2799.36,
 			-2799.36
 		};
 		p.acceleration = accelerations[p.speed];
@@ -109,6 +111,7 @@ Vehicle cube() {
 				603.7217172,
 				616.681728,
 				606.421728,
+				606.421728
 			};
 
 			// On slopes, you jump higher depending on how long you've been on the slope
@@ -245,7 +248,7 @@ Vehicle ball() {
 	};
 
 	v.update = +[](Player& p) {
-		if (!p.prevPlayer().velocityOverride)
+		if (!p.prevPlayer().velocityOverride || p.prevPlayer().slopeData.slope)
 			p.acceleration = -1676.46672;
 
 		if (!p.input)
@@ -270,6 +273,7 @@ Vehicle ball() {
 				-172.044007,
 				-181.11601,
 				-185.00401,
+				-181.92601,
 				-181.92601
 			};
 

@@ -83,7 +83,7 @@ void Pad::collide(Player& p) const {
 	}
 
 	if (p.vehicle.type != VehicleType::Wave)
-		p.velocity = pad_velocities.get(type, p.vehicle.type, p.small, p.speed);
+		p.velocity = pad_velocities.get(type, p.vehicle.type, p.small, std::min(3, p.speed));
 
 	p.grounded = false;
 	p.gravityPortal = false;

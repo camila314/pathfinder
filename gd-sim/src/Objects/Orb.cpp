@@ -74,7 +74,7 @@ void Orb::collide(Player& p) const {
 
 		// Wave can't use non-gravity orbs
 		if (p.vehicle.type != VehicleType::Wave) {
-			p.velocity = orb_velocities.get(type, p.vehicle.type, p.small , p.speed);
+			p.velocity = orb_velocities.get(type, p.vehicle.type, p.small , std::min(3, p.speed));
 			p.grounded = false;
 		}
 

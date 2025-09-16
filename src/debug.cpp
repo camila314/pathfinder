@@ -56,7 +56,6 @@ void runTestSim(std::string const& level, std::filesystem::path const& path) {
 
 	std::string encoded = "0";
 	bool currentHold = false;
-	log::info("max frame {}", inputs.back().frame);
 
 	int maxFrame = inputs.back().frame;
 	for (int i = 1; i < maxFrame; ++i) {
@@ -228,17 +227,29 @@ class $modify(LevelEditorLayer) {
 		LevelEditorLayer::init(lvl, p1);
 		(void)file::writeString(Mod::get()->getSaveDir() / "real.txt", realTxt);
 
-		if (true) {
-			auto b = CCDrawNode::create();
-			b->setID("pathfind-node");
-			m_objectLayer->addChild(b);
+		auto b = CCDrawNode::create();
+		b->setID("pathfind-node");
+		m_objectLayer->addChild(b);
 
-			CCPoint start = ccp(0, 105);
-			for (auto& i : s_realPoints) {
-				b->drawSegment(start, i, 1, ccc4f(1, 0, 0, 1));
-				start = i;
-			}
+		#if DEBUG_MODE
+		CCPoint start = ccp(0, 105);
+		for (auto& i : s_simPoints) {
+			b->drawSegment(start, i, 1, ccc4f(0, 1, 0, 1));
+			start = i;
 		}
+
+		start = ccp(0, 105);
+		for (auto& i : s_realPoints) {
+			b->drawSegment(start, i, 1, ccc4f(1, 0, 0, 1));
+			start = i;
+		}
+
+		bool k = false;
+		for (auto& i : s_inputPoints) {
+			b->drawDot(i, 2, ccc4f(k ? 1 : 0, 0.5, k ? 0 : 1, 1));
+			k = !k;
+		}
+		#endif
 
 		return true;
 	}
@@ -258,7 +269,7 @@ class $modify(GJBaseGameLayer) {
 
 		auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f} Rot {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240, m_player1->getRotation());
 		
-		log::info("{}", dat);
+		log::debug("{}", dat);
 
 		frames++;
 		prevVel = vel;
