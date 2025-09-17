@@ -30,6 +30,10 @@ void Level::initLevelSettings(std::string const& lvlSettings, Player& player) {
 	player.small = atoi(get_or("kA3", "0"));
 	player.upsideDown = atoi(get_or("kA11", "0"));
 	player.vehicle = Vehicle::from(static_cast<VehicleType>(atoi(get_or("kA2", "0"))));
+
+	player.floor = 0;
+	player.ceiling = player.vehicle.bounds;
+	player.size = player.small ? (player.size * 0.6) : (player.size / 0.6);
 }
 
 Level::Level(std::string const& lvlString) {

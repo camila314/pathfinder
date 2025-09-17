@@ -1,3 +1,12 @@
+# beta 22
+
+- Rotated object support for ship and wave
+- Slope fixes
+- 4x speed
+- Wave fixes
+- Debug button added
+- Fixed bounds for vehicles in level settings
+
 # beta 21.1 (minor fix)
 - Fixed bug where hitting pads while wave caused an error
 

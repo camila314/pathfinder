@@ -3,6 +3,7 @@
 #include <Object.hpp>
 #include <algorithm>
 #include <Slope.hpp>
+#include <cfloat>
 #include <cmath>
 
 /*
@@ -46,20 +47,15 @@ Vehicle cube() {
 	Vehicle v;
 	 v.type = VehicleType::Cube;
 
-	v.enter = +[](Player& p, Object const*, bool n) {
-		if (n) {
-			if (p.prevPlayer().vehicle.type != VehicleType::Ball)
-				p.velocity = p.velocity / 2;
+	v.enter = +[](Player& p) {
+		if (p.prevPlayer().vehicle.type != VehicleType::Ball)
+			p.velocity = p.velocity / 2;
 
-			if (p.prevPlayer().vehicle.type == VehicleType::Wave)
-				p.velocity = p.velocity / 2;
+		if (p.prevPlayer().vehicle.type == VehicleType::Wave)
+			p.velocity = p.velocity / 2;
 
-			if (p.prevPlayer().vehicle.type == VehicleType::Ship && p.input)
-				p.buffer = true;
-		}
-
-		p.ceiling = 999999;
-		p.floor = 0;
+		if (p.prevPlayer().vehicle.type == VehicleType::Ship && p.input)
+			p.buffer = true;
 	};
 
 	v.clamp = +[](Player& p) {
@@ -117,15 +113,6 @@ Vehicle cube() {
 			// On slopes, you jump higher depending on how long you've been on the slope
 			if (p.slopeData.slope && p.slopeData.slope->orientation == 0) {
 				auto time = std::clamp(10 * (p.timeElapsed - p.slopeData.elapsed), 0.4, 1.0);
-
-				/*static double slopeHeights[4] = {
-					322.345224,
-					399.889818,
-					497.224926,
-					600.643296
-				};*/
-
-
 				double vel = 0.9 * std::min(1.12 / p.slopeData.slope->angle(), 1.54) * (p.slopeData.slope->size.y * player_speeds[p.speed] / p.slopeData.slope->size.x);
 				p.setVelocity(0.25 * time * vel + jumpHeights[p.speed], p.prevPlayer().input);
 
@@ -138,6 +125,8 @@ Vehicle cube() {
 		}
 	};
 
+	v.bounds = FLT_MAX;
+
 	return v;
 }
 
@@ -145,16 +134,11 @@ Vehicle ship() {
 	Vehicle v;
 	v.type = VehicleType::Ship;
 
-	v.enter = +[](Player& p, Object const* o, bool n) {
-		if (n) {
-			if (p.prevPlayer().vehicle.type == VehicleType::Ufo || p.prevPlayer().vehicle.type == VehicleType::Wave)
-				p.velocity = p.velocity / 4.0;
-			else 
-				p.velocity = p.velocity / 2.0;
-		}
-
-		p.floor = std::max(0., std::ceil((o->pos.y - 180) / 30.)) * 30;
-		p.ceiling = p.floor + 300;
+	v.enter = +[](Player& p) {
+		if (p.prevPlayer().vehicle.type == VehicleType::Ufo || p.prevPlayer().vehicle.type == VehicleType::Wave)
+			p.velocity = p.velocity / 4.0;
+		else 
+			p.velocity = p.velocity / 2.0;
 	};
 
 	v.clamp = +[](Player& p) {
@@ -209,6 +193,8 @@ Vehicle ship() {
 		rotateFly(p, 0.15f);
 	};
 
+	v.bounds = 300;
+
 	return v;
 }
 
@@ -230,21 +216,17 @@ Vehicle ball() {
 		}
 	};
 
-	v.enter = +[](Player& p, Object const* o, bool n) {
-		if (n) {
-			if (p.input)
-				p.vehicleBuffer = true;
+	v.enter = +[](Player& p) {
+		if (p.input)
+			p.vehicleBuffer = true;
 
-			switch (p.prevPlayer().vehicle.type) {
-				case VehicleType::Ship:
-				case VehicleType::Ufo:
-					p.velocity = p.velocity / 2;
-					break;
-				default: break;
-			}
+		switch (p.prevPlayer().vehicle.type) {
+			case VehicleType::Ship:
+			case VehicleType::Ufo:
+				p.velocity = p.velocity / 2;
+				break;
+			default: break;
 		}
-		p.floor = std::max(0., std::ceil((o->pos.y - 150) / 30.)) * 30;
-		p.ceiling = p.floor + 240;
 	};
 
 	v.update = +[](Player& p) {
@@ -295,6 +277,8 @@ Vehicle ball() {
 		}
 	};
 
+	v.bounds = 240;
+
 	return v;
 }
 
@@ -302,17 +286,12 @@ Vehicle ufo() {
 	Vehicle v;
 
 	v.type = VehicleType::Ufo;
-	v.enter = +[](Player& p, Object const* o, bool n) {
-		if (n) {
-			VehicleType pv = p.prevPlayer().vehicle.type;
-			if ((pv == VehicleType::Ship || pv == VehicleType::Wave) && p.input)
-				p.buffer = true;
+	v.enter = +[](Player& p) {
+		VehicleType pv = p.prevPlayer().vehicle.type;
+		if ((pv == VehicleType::Ship || pv == VehicleType::Wave) && p.input)
+			p.buffer = true;
 
-			p.velocity = p.velocity / (p.prevPlayer().vehicle.type == VehicleType::Ship ? 4 : 2);
-		}
-
-		p.floor = std::max(0., std::ceil((o->pos.y - 180) / 30.)) * 30;
-		p.ceiling = p.floor + 300;
+		p.velocity = p.velocity / (p.prevPlayer().vehicle.type == VehicleType::Ship ? 4 : 2);
 	};
 
 	v.clamp = +[](Player& p) {
@@ -354,21 +333,18 @@ Vehicle ufo() {
 		}
 	};
 
+	v.bounds = 300;
+
 	return v;
 }
 
 Vehicle wave() {
 	Vehicle v;
 	v.type = VehicleType::Wave;
-	v.enter = +[](Player& p, Object const* o, bool) {
+	v.enter = +[](Player& p) {
 		p.actions.push_back(+[](Player& p) {
 			p.size = p.small ? Vec2D(6, 6) : Vec2D(10, 10);
 		});
-
-		p.floor = std::max(0., std::ceil((o->pos.y - 180) / 30.)) * 30;
-		p.ceiling = p.floor + 300;
-		std::cout << "CEIL WAVE " << p.ceiling << std::endl;
-
 	};
 
 	v.clamp = +[](Player& p) {
@@ -395,6 +371,8 @@ Vehicle wave() {
 
 		rotateFly(p, p.small ? 0.4 : 0.25);
 	};
+
+	v.bounds = 300;
 
 	return v;
 }

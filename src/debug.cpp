@@ -269,7 +269,9 @@ class $modify(GJBaseGameLayer) {
 
 		auto dat = fmt::format("Frame {} X {:.8f} Y {:.8f} Vel {:.8f} Accel {:.8f} Rot {:.8f}", frames, m_player1->getPositionX(), m_player1->getPositionY() - 105, vel, (vel - prevVel) * 240, m_player1->getRotation());
 		
-		log::debug("{}", dat);
+		#if DEBUG_MODE
+		log::info("{}", dat);
+		#endif
 
 		frames++;
 		prevVel = vel;
