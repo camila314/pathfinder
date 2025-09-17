@@ -1,3 +1,6 @@
+# beta 22.1 (bugfix)
+- Fixed bug where player's hitbox was larger than intended
+
 # beta 22
 
 - Rotated object support for ship and wave

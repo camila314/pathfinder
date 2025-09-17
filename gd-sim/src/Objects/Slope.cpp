@@ -91,7 +91,7 @@ void Slope::calc(Player& p) const {
 		}
 
 		// When you're on top of the slope you will be ejected
-		if (p.gravBottom(p) == p.gravTop(*this) || (p.gravBottom(p) > p.gravTop(*this) && p.snapData.playerFrame > 0)) {
+		if (p.grounded && (p.gravBottom(p) == p.gravTop(*this) || (p.gravBottom(p) > p.gravTop(*this) && p.snapData.playerFrame > 0))) {
 			
 			// Rob's algorithm for slope ejection velocity. So goofy!
 			double vel = 0.9 * std::min(1.12 / p.grav(angle()), 1.54) * (size.y * player_speeds[p.speed] / size.x);
