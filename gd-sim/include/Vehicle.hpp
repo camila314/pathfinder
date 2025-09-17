@@ -17,14 +17,17 @@ struct Object;
 struct Vehicle {
 	VehicleType type;
 
-	/// When the vehicle is changed into this one
-	std::function<void(Player&, Object const*, bool)> enter;
+	/// When the vehicle is changed into this one.
+	std::function<void(Player&)> enter;
 
 	/// Ran after everything else, used mainly for vehicles that have ceilings
 	std::function<void(Player&)> clamp;
 
 	/// Vehicle-specific movement, done after collisions
 	std::function<void(Player&)> update;
+
+	/// How far away the floor and ceiling are from each other, relative to portal
+	float bounds;
 
 	static Vehicle from(VehicleType v);
 };

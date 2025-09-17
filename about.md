@@ -6,8 +6,7 @@ Auto-generate macros for levels using simulation! This mod uses a physics simula
 ### None of these are supported
 - Duals
 - Upside-down Slopes
-- Partially Rotated Objects (not 90 degrees)
-- 4x Speed
+- Partially Rotated Objects for Cube, UFO, Ball
 - Robot Mode
 - Spider Mode
 - Swing Mode

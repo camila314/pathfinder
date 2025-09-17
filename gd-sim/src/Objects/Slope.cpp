@@ -57,16 +57,14 @@ double Slope::angle() const {
 }
 
 double Slope::expectedY(Player const& p) const {
-	// I do not fully understand this.
-	double ydist = p.prevPlayer().grav(isFacingUp() ? 1 : -1) * p.size.y * sqrt(pow(tan(angle()), 2) + 1) / 2;
+	double ydist = (isFacingUp() ? 1 : -1) * (p.size.y / 2.f) / cosf(angle());
 	float posRelative = (size.y / size.x) * (p.pos.x - getLeft());
 
 	// Uphill vs downhill
-	if (angle() > 0) {
-		return getBottom() + std::min(ydist + posRelative, size.y + p.size.y / 2.0);
-	}
+	if (angle() > 0)
+		return getBottom() + std::min(posRelative + ydist, size.y + p.size.y / 2.0);
 	else
-		return getTop() + std::min(ydist - posRelative, p.size.y / 2.0);
+		return getTop() - std::min(posRelative - ydist, size.y + p.size.y / 2.0);
 }
 
 /// See Slope.hpp for why this is a separate function
@@ -93,10 +91,10 @@ void Slope::calc(Player& p) const {
 		}
 
 		// When you're on top of the slope you will be ejected
-		if (p.gravBottom(p) == p.gravTop(*this) || (p.gravBottom(p) > p.gravTop(*this) && p.snapData.playerFrame > 0)) {
+		if (p.grounded && (p.gravBottom(p) == p.gravTop(*this) || (p.gravBottom(p) > p.gravTop(*this) && p.snapData.playerFrame > 0))) {
 			
 			// Rob's algorithm for slope ejection velocity. So goofy!
-			double vel = 0.9 * std::min(1.12 / angle(), 1.54) * (size.y * player_speeds[p.speed] / size.x);
+			double vel = 0.9 * std::min(1.12 / p.grav(angle()), 1.54) * (size.y * player_speeds[p.speed] / size.x);
 			double time = std::clamp(10 * (p.timeElapsed - p.slopeData.elapsed), 0.4, 1.0);
 
 			if (p.vehicle.type == VehicleType::Ball || p.vehicle.type == VehicleType::Ship)
@@ -192,8 +190,8 @@ void Slope::collide(Player& p) const {
 		bool projectedHit = orientation == 1 ? (pAngle * 5.0 <= angle()) : (pAngle <= angle());
 
 		// Downhill slopes attach you to the slope faster uphill
-		float expAdjust = expectedY(p)  + (angle() > 0 ? 0 : 2);
-		bool clip = isFacingUp() ? (expAdjust >= p.pos.y) : (expAdjust <= p.pos.y);
+		//float expAdjust = expectedY(p)  + (angle() > 0 ? 0 : 2);
+		bool clip = true;//isFacingUp() ? (p.grav(expAdjust) >= p.grav(p.pos.y)) : (p.grav(expAdjust) <= p.grav(p.pos.y));
 
 		// Downhill slopes snap you down
 		bool snapDown = orientation == 1 && p.velocity > 0 && p.pos.x - getLeft() > 0;
@@ -223,20 +221,20 @@ double SlopeHazard::expectedY(Player const& p) const {
 }
 
 bool Slope::touching(Player const& p) const {
-	if (!Block::touching(p)) {
+	if (!Block::touching(p) || (p.vehicle.type == VehicleType::Cube && p.gravTop(p) - p.gravBottom(*this) < 16)) {
 		return false;
 	}
 
 	// TODO finish the last two.
 	switch (orientation) {
 		case 0:
-			return expectedY(p) >= p.pos.y;
+			return expectedY(p) > p.pos.y;
 		case 1:
-			return expectedY(p) - 2 >= p.pos.y;
+			return expectedY(p) > p.pos.y;
 		case 2:
-			return expectedY(p) + 2 <= p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
+			return expectedY(p) < p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
 		case 3:
-			return expectedY(p) <= p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
+			return expectedY(p) < p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
 		default:
 			return false;
 	}

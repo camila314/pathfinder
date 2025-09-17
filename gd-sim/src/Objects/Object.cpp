@@ -73,7 +73,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 	objs(({ 1340 }), Block, 27, 2)
 	objs(({ 34 }), Block, 37, 23)
 
-	objs(({ 720, 991, 1731, 1733 }), Hazard, 2.4, 3.2)
+	objs(({ 720, 991, 1731, 1733 }), Hazard, 2.40039063, 3.20001221)
 	objs(({ 61, 446, 1719, 1728 }), Hazard, 9, 7.2)
 	objs(({ 365, 667, 1716, 1730 }), Hazard, 9, 6)
 	objs(({ 392, {458, 459} }), Hazard, 2.6, 4.8)
