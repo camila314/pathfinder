@@ -3,6 +3,8 @@
 #include <Level.hpp>
 #include <Player.hpp>
 #include <cmath>
+#include <array>
+#include <algorithm>
 
 Block::Block(Vec2D s, std::unordered_map<int, std::string>&& fields) : Object(s, std::move(fields)) {
 	// Blocks have a prio of 1, so they are processed later than most other objects.
