@@ -32,5 +32,6 @@ struct Slope : public Block {
 struct SlopeHazard : public Slope {
     using Slope::Slope;
     void collide(Player&) const override;
+    bool touching(Player const&) const override;
     double expectedY(Player const& p) const override;
 };

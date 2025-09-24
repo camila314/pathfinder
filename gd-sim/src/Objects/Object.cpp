@@ -52,7 +52,7 @@ std::optional<ObjectContainer> Object::create(std::unordered_map<int, std::strin
 	}), Block, 15, 15)
 	objs(({ 40, 147, 215, {369, 370}, {1903, 1905} }), Block, 30, 14)
 	objs(({ { 170, 172 }, 174, 192 }), Block, 30, 21)
-	objs(({ 468, 475, 1260 }), Block, 30.1, 5)
+	objs(({ 468, 475, 1260 }), Block, 30, 1.5)
 	objs(({ 62, 65, 66, 68 }), Block, 30, 16)
 	objs(({ 1202, 1262 }), Block, 30, 3)
 	objs(({ 1220, 1264 }), Block, 30, 6)

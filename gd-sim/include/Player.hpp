@@ -20,8 +20,8 @@ inline double player_speeds[5] = {
 
 /// Used in player rotation. Similar to m_playerSpeed member variable
 inline float player_speedmults[5] = {
-	0.9,
 	0.7,
+	0.9,
 	1.1,
 	1.3,
 	1.6	
