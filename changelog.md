@@ -1,3 +1,10 @@
+# beta 23
+
+- Fixed object snapping forever
+- Partial upside-down slope support
+- Start Pos support
+- More bug fixes
+
 # beta 22.1 (bugfix)
 - Fixed bug where player's hitbox was larger than intended
 

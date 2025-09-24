@@ -111,6 +111,15 @@ void Block::collide(Player& p) const {
 		}
 	}
 
+	for (auto& entity : p.potentialSlopes) {
+		auto block_comp = entity->orientation < 2 ? getTop() : getBottom();
+		auto slope_comp = entity->orientation < 2 ? entity->getBottom() : entity->getTop();
+
+		if (block_comp - slope_comp < 2) {
+			return;
+		}
+	}
+
 	bool padHitBefore = (!p.prevPlayer().grounded && p.prevPlayer().velocity <= 0 && p.velocity > 0);
 
 	if (p.innerHitbox().intersects(*this)) {

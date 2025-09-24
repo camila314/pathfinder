@@ -127,6 +127,9 @@ void Slope::calc(Player& p) const {
 
 		// Snap to expected Y just like uphill
 		if (p.gravBottom(p.prevPlayer()) != getTop() || p.slopeData.snapDown) {
+			// just in case
+			p.pos.y = std::max<float>(p.pos.y, expectedY(p.prevPlayer()));
+
 			p.pos.y = std::max(std::min((double)p.pos.y, expectedY(p)), pos.y - p.size.y / 2.);
 		}
 
@@ -156,6 +159,7 @@ void Slope::calc(Player& p) const {
 				p.slopeData.elapsed = 0;
 				p.slopeData.snapDown = false;
 			});
+			return;
 		}
 
 		p.velocity = 0;
@@ -178,6 +182,15 @@ void Slope::calc(Player& p) const {
 }
 
 void Slope::collide(Player& p) const {
+	p.potentialSlopes.push_back(this);
+
+	if (orientation < 2 && expectedY(p) <= p.pos.y)
+		return;
+	else if (orientation >= 2 && expectedY(p) >= p.pos.y)
+		return;
+	else if (p.vehicle.type == VehicleType::Cube && p.gravTop(p) - p.gravBottom(*this) < 16)
+		return;
+
 	// No slope calculations for you!
 	if (p.vehicle.type == VehicleType::Wave) {
 		p.dead = true;
@@ -239,31 +252,16 @@ void Slope::collide(Player& p) const {
 }
 
 void SlopeHazard::collide(Player& p) const {
+	if (orientation < 2 && expectedY(p) <= p.pos.y)
+		return;
+	else if (orientation >= 2 && expectedY(p) >= p.pos.y)
+		return;
+
 	p.dead = true;
 }
 double SlopeHazard::expectedY(Player const& p) const {
 	// Hazardous slopes have slightly larger hitboxes
 	return Slope::expectedY(p) + (orientation > 1 ? -4 : 4);
-}
-
-
-
-bool sharedTouch(Slope const& s, Player const& p) {
-	//std::cout << "Input X " << p.pos.x << " Y " << s.expectedY(p) - 15 << std::endl;
-
-	// TODO finish the last two.
-	switch (s.orientation) {
-		case 0:
-			return s.expectedY(p) > p.pos.y;
-		case 1:
-			return s.expectedY(p) > p.pos.y;
-		case 2:
-			return s.expectedY(p) < p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
-		case 3:
-			return s.expectedY(p) < p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
-		default:
-			return false;
-	}
 }
 
 bool SlopeHazard::touching(Player const& p) const {
@@ -272,15 +270,16 @@ bool SlopeHazard::touching(Player const& p) const {
 	if (!intersects(hitbox))
 		return false;
 
-	return sharedTouch(*this, p);
-}
-
-bool Slope::touching(Player const& p) const {
-	if (!intersects(p.unrotatedHitbox()) || (p.vehicle.type == VehicleType::Cube && p.gravTop(p) - p.gravBottom(*this) < 16)) {
-		return false;
+	switch (orientation) {
+		case 0:
+			return expectedY(p) > p.pos.y;
+		case 1:
+			return expectedY(p) > p.pos.y;
+		case 2:
+			return expectedY(p) < p.pos.y;
+		case 3:
+			return expectedY(p) < p.pos.y;
+		default:
+			return false;
 	}
-
-	
-
-	return sharedTouch(*this, p);
 }
