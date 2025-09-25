@@ -127,6 +127,9 @@ void Slope::calc(Player& p) const {
 
 		// Snap to expected Y just like uphill
 		if (p.gravBottom(p.prevPlayer()) != getTop() || p.slopeData.snapDown) {
+			// just in case
+			p.pos.y = std::max<float>(p.pos.y, expectedY(p.prevPlayer()));
+
 			p.pos.y = std::max(std::min((double)p.pos.y, expectedY(p)), pos.y - p.size.y / 2.);
 		}
 
@@ -149,11 +152,29 @@ void Slope::calc(Player& p) const {
 				p.slopeData.snapDown = false;
 			});
 		}
-	} else {
-		if (!touching(p)) {
+	} else if (gravOrient(p.prevPlayer()) == 2) {
+		if (p.velocity < 0) {
 			p.actions.push_back(+[](Player& p) {
 				p.slopeData.slope = {};
-				p.slopeData.elapsed = 0.0;
+				p.slopeData.elapsed = 0;
+				p.slopeData.snapDown = false;
+			});
+			return;
+		}
+
+		p.velocity = 0;
+
+		if (p.grav(p.pos.y) < p.gravTop(*this)) {
+			p.pos.y = p.grav(std::max<float>(p.grav(p.pos.y), p.grav(expectedY(p))));
+		}
+
+		if (p.grav(p.pos.y) >= p.gravTop(*this)) {
+			p.pos.y = p.grav(p.gravTop(*this));
+			p.velocity = roundVel(p.prevPlayer().acceleration * p.dt, p.prevPlayer().upsideDown);
+
+			p.actions.push_back(+[](Player& p) {
+				p.slopeData.slope = {};
+				p.slopeData.elapsed = 0;
 				p.slopeData.snapDown = false;
 			});
 		}
@@ -161,6 +182,15 @@ void Slope::calc(Player& p) const {
 }
 
 void Slope::collide(Player& p) const {
+	p.potentialSlopes.push_back(this);
+
+	if (orientation < 2 && expectedY(p) <= p.pos.y)
+		return;
+	else if (orientation >= 2 && expectedY(p) >= p.pos.y)
+		return;
+	else if (p.vehicle.type == VehicleType::Cube && p.gravTop(p) - p.gravBottom(*this) < 16)
+		return;
+
 	// No slope calculations for you!
 	if (p.vehicle.type == VehicleType::Wave) {
 		p.dead = true;
@@ -168,9 +198,15 @@ void Slope::collide(Player& p) const {
 	}
 
 	// When you hit a downhill slope before your center hits the leftmost side, it's treated like a block
-	if (!p.prevPlayer().slopeData.slope && orientation == 1 && p.pos.x - getLeft() < 0 && p.velocity <= 0) {
-		p.pos.y = getTop() + p.size.y / 2;
+	if (!p.prevPlayer().slopeData.slope && gravOrient(p) == 1 && p.velocity <= 0 && p.pos.x - getLeft() < 0) {
+		p.pos.y = p.grav(p.gravTop(*this) + p.size.y / 2.);
 		p.grounded = true;
+		return;
+	}
+
+	if (!p.prevPlayer().slopeData.slope && gravOrient(p) == 2 && p.velocity >= 0 && p.pos.x - getLeft() < 0) {
+		p.pos.y = p.grav(p.gravBottom(*this) - p.size.y / 2.);
+		p.velocity = 0;
 		return;
 	}
 
@@ -182,11 +218,14 @@ void Slope::collide(Player& p) const {
 		or you're no longer touching the previous slope.
 	*/
 	if (!pSlope || !pSlope->touching(p) || (pSlope->gravOrient(p) == gravOrient(p) && p.grav(expectedY(p)) > p.grav(pSlope->expectedY(p))) || pSlope->id == id) {
-		double pAngle = atan((p.prevPlayer().velocity * p.dt) / (player_speeds[p.speed] * p.dt));
-
 		bool hasSlope = p.prevPlayer().slopeData.slope.has_value();
 
 		//  Is player traveling at the right angle to contact the slope
+		double pAngle = atan((p.prevPlayer().velocity * p.dt) / (player_speeds[p.speed] * p.dt));
+		if (gravOrient(p.prevPlayer()) > 1)
+			pAngle = -pAngle;
+
+
 		bool projectedHit = orientation == 1 ? (pAngle * 5.0 <= angle()) : (pAngle <= angle());
 
 		// Downhill slopes attach you to the slope faster uphill
@@ -213,6 +252,11 @@ void Slope::collide(Player& p) const {
 }
 
 void SlopeHazard::collide(Player& p) const {
+	if (orientation < 2 && expectedY(p) <= p.pos.y)
+		return;
+	else if (orientation >= 2 && expectedY(p) >= p.pos.y)
+		return;
+
 	p.dead = true;
 }
 double SlopeHazard::expectedY(Player const& p) const {
@@ -220,21 +264,21 @@ double SlopeHazard::expectedY(Player const& p) const {
 	return Slope::expectedY(p) + (orientation > 1 ? -4 : 4);
 }
 
-bool Slope::touching(Player const& p) const {
-	if (!Block::touching(p) || (p.vehicle.type == VehicleType::Cube && p.gravTop(p) - p.gravBottom(*this) < 16)) {
+bool SlopeHazard::touching(Player const& p) const {
+	Entity hitbox = p.unrotatedHitbox();
+	hitbox.size.y += 8;
+	if (!intersects(hitbox))
 		return false;
-	}
 
-	// TODO finish the last two.
 	switch (orientation) {
 		case 0:
 			return expectedY(p) > p.pos.y;
 		case 1:
 			return expectedY(p) > p.pos.y;
 		case 2:
-			return expectedY(p) < p.pos.y;//-(frontBottom.x - pos.x >= frontBottom.y - pos.y);
+			return expectedY(p) < p.pos.y;
 		case 3:
-			return expectedY(p) < p.pos.y;//frontBottom.x - pos.x <= frontBottom.y - pos.y;
+			return expectedY(p) < p.pos.y;
 		default:
 			return false;
 	}

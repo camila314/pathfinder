@@ -3,6 +3,8 @@
 #include <Level.hpp>
 #include <Player.hpp>
 #include <cmath>
+#include <array>
+#include <algorithm>
 
 Block::Block(Vec2D s, std::unordered_map<int, std::string>&& fields) : Object(s, std::move(fields)) {
 	// Blocks have a prio of 1, so they are processed later than most other objects.
@@ -34,24 +36,40 @@ enum class SnapType {
 	DownStair
 };
 
-/// `diff` refers to the coordinate difference between the current and previous touched block
-SnapType snapType(Vec2D const& diff, Player const& p) {
-	if (p.speed == 0 && !p.small) {
-		if (diff == Vec2D(90, 30)) return SnapType::LittleStair;
-		if (diff == Vec2D(60, 60)) return SnapType::BigStair;
-		if (diff == Vec2D(120, -30)) return SnapType::DownStair;
-	} else if (p.speed == 1) {
-		if (diff == Vec2D(90, 60) || (p.small && diff == Vec2D(90, 30))) return SnapType::BigStair;
-		if (diff == Vec2D(120, 30) && !p.small) return SnapType::LittleStair;
-		if (diff == Vec2D(150, -30)) return SnapType::DownStair;
-	} else if (p.speed == 2 && !p.small) {
-		if (diff == Vec2D(120, 60)) return SnapType::BigStair;
-		if (diff == Vec2D(150, 30)) return SnapType::LittleStair;
-	} else if (p.speed == 3 && !p.small) {
-		if (diff == Vec2D(210, -30)) return SnapType::DownStair;
+
+float snapThreshold(Vec2D const& diff, Player const& p) {
+	std::array<Vec2D, 3> stairs;
+	float threshold;
+
+	switch (p.speed) {
+	case 0:
+		stairs = { Vec2D(120, -30), Vec2D(90, 30), Vec2D(60, 60) };
+		threshold = 1;
+		break;
+	case 1:
+		stairs = { Vec2D(150, -30), Vec2D(p.small ? 90 : 120, 30), Vec2D(90, 60) };
+		threshold = 1;
+		break;
+	case 2:
+		stairs = { Vec2D(180, -30), Vec2D(p.small ? 90 : 150, 30), Vec2D(120, 60) };
+		threshold = 2;
+		break;
+	case 3:
+		stairs = { Vec2D(225, -30), Vec2D(p.small ? 90 : 180, 30), Vec2D(135, 60) };
+		threshold = 2;
+		break;
+	default:
+		stairs = { Vec2D(150, -30), Vec2D(120, 30), Vec2D(90, 60) };
+		threshold = 1;
+		break;
 	}
 
-	return SnapType::None;
+	for (auto& stair : stairs) {
+		if (std::abs(diff.x - stair.x) <= threshold && std::abs(diff.y - stair.y) <= threshold)
+			return threshold;
+	}
+
+	return 0;
 }
 
 void trySnap(Block const& b, Player& p) {
@@ -59,53 +77,12 @@ void trySnap(Block const& b, Player& p) {
 	auto diff = b.pos - snapData.object.pos;
 	diff.y = p.grav(diff.y);
 
-	auto snapPlayer = p.level->getState(snapData.playerFrame);
-
-	auto held = snapPlayer.input;
-	bool small = snapPlayer.small;
-
-	bool onEdge = 
-		(snapPlayer.getRight() - snapData.object.getLeft() < 1) || 
-		(snapPlayer.nextPlayer()->getLeft() - snapData.object.getRight() > -1);
-	
-	float samePos = snapPlayer.nextPlayer()->pos.x + diff.x;
-
-	/*
-		There are three main types of snapping: adding by 1 or 2, subtracting by 1 or 2, and
-		adjusting the x position based on the previous x position when touching the last block.
-	*/
-	switch (snapType(diff, p)) {
-		case SnapType::BigStair:
-			if ((!small && held) || snapPlayer.getRight() - snapData.object.getLeft() < 1)
-				p.pos.x = samePos;
-			else
-				p.pos.x += std::max(1, p.speed);
-			break;
-		case SnapType::LittleStair:
-			if (p.speed == 1) {
-				if (held && onEdge)
-					p.pos.x = samePos;
-				else 
-					p.pos.x += 1;
-			} else {
-				if (held)
-					p.pos.x -= (p.speed == 0 ? 1 : 2);
-				else
-					p.pos.x = samePos;
-			}
-			break;
-		case SnapType::DownStair:
-			if (held && !small && p.speed < 3)
-				p.pos.x = samePos;
-			else {
-				if (p.speed < 2)
-					p.pos.x += 1;
-				else
-					p.pos.x += 2;
-			}
-			break;
-		default:
-			break;
+	if (float threshold = snapThreshold(diff, p); threshold > 0) {
+		p.pos.x = std::clamp(
+			p.level->getState(snapData.playerFrame).nextPlayer()->pos.x + diff.x,
+			p.pos.x - threshold,
+			p.pos.x + threshold
+		);
 	}
 }
 
@@ -133,6 +110,15 @@ void Block::collide(Player& p) const {
 			if (p.gravTop(*this) - bottom < 2) {
 				return;
 			}
+		}
+	}
+
+	for (auto& entity : p.potentialSlopes) {
+		auto block_comp = entity->orientation < 2 ? getTop() : getBottom();
+		auto slope_comp = entity->orientation < 2 ? entity->getBottom() : entity->getTop();
+
+		if (block_comp - slope_comp < 2) {
+			return;
 		}
 	}
 

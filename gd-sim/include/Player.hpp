@@ -20,8 +20,8 @@ inline double player_speeds[5] = {
 
 /// Used in player rotation. Similar to m_playerSpeed member variable
 inline float player_speedmults[5] = {
-	0.9,
 	0.7,
+	0.9,
 	1.1,
 	1.3,
 	1.6	
@@ -46,6 +46,9 @@ struct Player : public Entity {
 
 	/// See util.hpp for what cow_set is
 	cow_set<int> usedEffects;
+
+	// Potential slopes are important for block collisions. Reset per frame.
+	std::vector<Slope const*> potentialSlopes;
 
 	/// Actions will be ran at the beginning of every frame.
 	std::vector<std::function<void(Player&)>> actions;

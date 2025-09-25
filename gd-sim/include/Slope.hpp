@@ -6,7 +6,6 @@ struct Slope : public Block {
 	
     Slope(Vec2D size, std::unordered_map<int, std::string>&& fields);
     void collide(Player&) const override;
-    bool touching(Player const&) const override;
 
     /**
      * On certain slopes, the player can still be "on" them without physically
@@ -32,5 +31,6 @@ struct Slope : public Block {
 struct SlopeHazard : public Slope {
     using Slope::Slope;
     void collide(Player&) const override;
+    bool touching(Player const&) const override;
     double expectedY(Player const& p) const override;
 };

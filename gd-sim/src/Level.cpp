@@ -64,6 +64,12 @@ Level::Level(std::string const& lvlString) {
 				obj[atoi(k.c_str())] = v;
 		}
 
+		if (obj[1] == "31") {
+			initLevelSettings(objstr, player);
+			player.pos.x = stod_def(obj[2], 0);
+			player.pos.y = stod_def(obj[3], 0);
+		}
+
 		if (auto ob_o = Object::create(std::move(obj))) {
 			auto ob = ob_o.value();
 

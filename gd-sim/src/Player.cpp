@@ -65,8 +65,10 @@ void Player::preCollision(bool pressed) {
 		i(*this);
 	actions.clear();
 
+	potentialSlopes.clear();
+
 	// Downhill slopes snap you automatically
-	if (slopeData.slope && slopeData.slope->orientation == 1) {
+	if (slopeData.slope && slopeData.slope->gravOrient(*this) == 1) {
 		grounded = true;
 	}
 }
@@ -117,7 +119,7 @@ void Player::postCollision() {
 		velocity = newVel;
 	}
 
-	// Ball mvoements are not rounded in GD. Probably a bug!
+	// Ball movements are not rounded in GD. Probably a bug!
 	if (roundVelocity)
 		velocity = roundVel(velocity, upsideDown);
 
