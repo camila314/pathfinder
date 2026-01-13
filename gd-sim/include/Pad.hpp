@@ -4,7 +4,8 @@
 enum class PadType {
 	Yellow,
 	Blue,
-	Pink
+	Pink,
+	Red,
 };
 
 struct Pad : public EffectObject {

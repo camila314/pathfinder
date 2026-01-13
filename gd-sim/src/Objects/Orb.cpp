@@ -12,6 +12,15 @@ Orb::Orb(Vec2D size, std::unordered_map<int, std::string>&& fields) : EffectObje
 		case 141:
 			type = OrbType::Pink;
 			break;
+		case 1333:
+			type = OrbType::Red;
+			break;
+		case 1330:
+			type = OrbType::Black;
+			break;
+		case 1022:
+			type = OrbType::Green;
+			break;
 		default:
 			type = OrbType::Yellow;
 			break;
@@ -61,7 +70,34 @@ const velocity_map<OrbType, VehicleType, bool> orb_velocities = {
 	{{OrbType::Pink, VehicleType::Ball, true},    {247.287596,  260.3286,   265.923,   261.5004}},
 
 	{{OrbType::Pink, VehicleType::Ufo, false},    {240.84,      253.584,    258.984,   254.718}},
-	{{OrbType::Pink, VehicleType::Ufo, true},     {192.672,     202.824,    207.198,   203.742}}
+	{{OrbType::Pink, VehicleType::Ufo, true},     {192.672,     202.824,    207.198,   203.742}},
+
+
+	{{OrbType::Red, VehicleType::Cube, false},    {779.976,     821.448,    839.43,    825.174}},
+	{{OrbType::Red, VehicleType::Cube, true},     {621.702,     654.858,    669.222,   657.828}},
+
+	{{OrbType::Red, VehicleType::Ship, false},    {569.754,     599.994,    612.954,   602.694}},
+	{{OrbType::Red, VehicleType::Ship, true},     {637.902,     671.814,    686.286,   674.838}},
+
+	{{OrbType::Red, VehicleType::Ball, false},    {530.928,     559.278,    571.482,   561.816}},
+	{{OrbType::Red, VehicleType::Ball, true},     {423.36,      446.04,     455.76,    448.092}},
+
+	{{OrbType::Red, VehicleType::Ufo, false},     {577.962,     608.85,     622.026,   611.604}},
+	{{OrbType::Red, VehicleType::Ufo, true},      {615.762,     648.648,    662.742,   651.564}},
+
+
+	{{OrbType::Green, VehicleType::Cube, false},  {562.032,     592.056,    605.07,    594.756}},
+	{{OrbType::Green, VehicleType::Cube, true},   {447.336,     471.312,    481.734,   485.136}},
+
+	{{OrbType::Green, VehicleType::Ship, false},  {406.08,      427.248,    432,       429.138}},
+	{{OrbType::Green, VehicleType::Ship, true},   {326.592,     343.548,    350.784,   345.06}},
+
+	{{OrbType::Green, VehicleType::Ball, false},  {394.47,      415.638,    424.71,    417.528}},
+	{{OrbType::Green, VehicleType::Ball, true},   {314.172,     331.074,    331.074,   332.586}},
+
+	{{OrbType::Green, VehicleType::Ufo, false},   {432,         432,        432,       432}},
+	{{OrbType::Green, VehicleType::Ufo, true},    {450.576,     474.768,    485.136,   476.928}},
+
 };
 
 void Orb::collide(Player& p) const {
@@ -74,11 +110,20 @@ void Orb::collide(Player& p) const {
 
 		// Wave can't use non-gravity orbs
 		if (p.vehicle.type != VehicleType::Wave) {
-			p.velocity = orb_velocities.get(type, p.vehicle.type, p.small , std::min(3, p.speed));
-			p.grounded = false;
+
+			if (type == OrbType::Black) {
+				p.velocity = -810;
+			} else {
+				p.velocity = orb_velocities.get(type, p.vehicle.type, p.small , std::min(3, p.speed));
+				p.grounded = false;
+
+				if (type == OrbType::Green) {
+					p.velocityOverride = true;
+				}
+			}
 		}
 
-		if (type == OrbType::Blue) {
+		if (type == OrbType::Blue || type == OrbType::Green) {
 			p.upsideDown = !p.upsideDown;
 		}
 

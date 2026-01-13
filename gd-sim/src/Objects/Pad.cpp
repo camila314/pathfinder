@@ -12,9 +12,9 @@ Pad::Pad(Vec2D size, std::unordered_map<int, std::string>&& fields) : EffectObje
 		case 140:
 			type = PadType::Pink;
 			break;
-		/*case 1332:
+		case 1332:
 			type = PadType::Red;
-			break;*/
+			break;
 		default:
 			type = PadType::Yellow;
 			break;
@@ -63,7 +63,20 @@ const velocity_map<PadType, VehicleType, bool> pad_velocities = {
 	{{PadType::Pink, VehicleType::Ball, true},    {290.304012,  290.304012,  290.304012,  290.304012}},
 
 	{{PadType::Pink, VehicleType::Ufo, false},    {345.6,       345.6,       345.6,       345.6}},
-	{{PadType::Pink, VehicleType::Ufo, true},     {276.48,      276.48,      276.48,      276.48}}
+	{{PadType::Pink, VehicleType::Ufo, true},     {276.48,      276.48,      276.48,      276.48}},
+
+
+	{{PadType::Red, VehicleType::Cube, false},    {1080,        1080,        1080,        1080}},
+	{{PadType::Red, VehicleType::Cube, true},     {864,         864,         864,         864}},
+
+	{{PadType::Red, VehicleType::Ship, false},    {544.32,      544.32,      544.32,      544.32}},
+	{{PadType::Red, VehicleType::Ship, true},     {656.64,      656.64,      656.64,      656.64}},
+
+	{{PadType::Red, VehicleType::Ball, false},    {648.00002575,648.00002575,648.00002575,648.00002575}},
+	{{PadType::Red, VehicleType::Ball, true},     {518.4000206, 518.4000206, 518.4000206, 518.4000206}},
+
+	{{PadType::Red, VehicleType::Ufo, false},     {518.4,       518.4,       518.4,       518.4}},
+	{{PadType::Red, VehicleType::Ufo, true},      {677.376,     677.376,     677.376,     677.376}},
 };
 
 void Pad::collide(Player& p) const {

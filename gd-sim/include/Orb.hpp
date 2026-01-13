@@ -5,6 +5,9 @@ enum class OrbType {
 	Yellow,
 	Blue,
 	Pink,
+	Red,
+	Green,
+	Black,
 };
 
 struct Orb : public EffectObject {

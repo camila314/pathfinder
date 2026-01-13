@@ -1,3 +1,9 @@
+# beta 24
+
+- Red Orb & Red Pad
+- Black Orb
+- Green Orb
+
 # beta 23
 
 - Fixed object snapping forever

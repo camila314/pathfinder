@@ -2,8 +2,7 @@
 
 Auto-generate macros for levels using simulation! This mod uses a physics simulator under the hood to solve levels in seconds! It does not come with a bot, you will need to install one for this.
 
-# ONLY SUPPORTS LEVELS WITH 1.9 OBJECTS
-### None of these are supported
+# None of these objects are supported
 - Duals
 - Upside-down Slopes
 - Partially Rotated Objects for Cube, UFO, Ball
@@ -11,10 +10,10 @@ Auto-generate macros for levels using simulation! This mod uses a physics simula
 - Spider Mode
 - Swing Mode
 - Any Non-Visual Triggers
-- Red Pads / Red Orbs
 - Dash Orbs
 - Teleport Portals
 - Anything from 2.2
+- Modifier blocks (D-block J-block etc)
 
 # How To Use
 
