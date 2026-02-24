@@ -1,5 +1,6 @@
 #include <Geode/Geode.hpp>
 #include <Geode/utils/web.hpp>
+#include <Geode/utils/coro.hpp>
 #include <Geode/modify/EditLevelLayer.hpp>
 #include <Geode/modify/LevelInfoLayer.hpp>
 #include <UIBuilder.hpp>
@@ -54,6 +55,7 @@ public:
 
             if (auto path = co_await pick(PickMode::SaveFile, opts); path.isOk() && path.unwrap().has_value()) {
                 (void)writeBinary(*path.unwrap(), macro);
+                co_await coro::nextFrame();
                 removeFromParentAndCleanup(true);
             }
         };
