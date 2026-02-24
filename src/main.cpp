@@ -34,7 +34,9 @@ public:
     void finalize(std::vector<uint8_t> macro) {
         getChildByIDRecursive("stop")->setVisible(false);
  
-        auto callback = [this, macro] {
+        auto callback = [this, macro](this auto self) -> arc::Future<void> {
+            log::info("okay now let's unpack this");
+
             auto saveDir = Mod::get()->getSaveDir();
             if (Loader::get()->isModLoaded("eclipse.eclipse-menu")) {
                 saveDir = Loader::get()->getLoadedMod("eclipse.eclipse-menu")->getSaveDir() / "replays";
@@ -44,22 +46,20 @@ public:
                 create_directories(saveDir);
             }
 
-            pick(PickMode::SaveFile, {
-                saveDir / fmt::format("{}.gdr2", m_levelName),
-                {{
-                    std::string("Macro File"),
-                    std::unordered_set {std::string("gdr2")}
-                }}
-            }).listen([this, macro](auto path) {
-                if (path->isOk()) {
-                    (void)writeBinary(path->unwrap(), macro);
-                    removeFromParentAndCleanup(true);
-                }
-            }, [](auto) {}, []() {});
+            FilePickOptions opts(
+                saveDir / fmt::format("{}.gdr2", m_levelName), {{
+                std::string("Macro File"),
+                std::unordered_set {std::string("gdr2")}
+            }});
+
+            if (auto path = co_await pick(PickMode::SaveFile, opts); path.isOk() && path.unwrap().has_value()) {
+                (void)writeBinary(*path.unwrap(), macro);
+                removeFromParentAndCleanup(true);
+            }
         };
 
         Build<ButtonSprite>::create("Export", "bigFont.fnt", "GJ_button_01.png")
-            .intoMenuItem(callback)
+            .intoMenuItem(async::wrapSpawn(callback))
             .scale(0.8)
             .move(0, -40)
             .parent(getChildByID("menu"));

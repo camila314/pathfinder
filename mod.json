@@ -1,22 +1,22 @@
 {
 	"id": "camila314.pathfinder",
 	"gd": {
-		"win": "2.2074",
-		"android": "2.2074",
-		"mac": "2.2074",
-		"ios": "2.2074"
+		"win": "2.2081",
+		"android": "2.2081",
+		"mac": "2.2081",
+		"ios": "2.2081"
 	},
-	"geode": "4.10.0",
+	"geode": "5.0.0",
 	"name": "Pathfinder",
 	"developer": "camila314",
-	"version": "v1.0.0-beta.240",
-	"dependencies": [
-		{
+	"version": "v1.0.0-beta.242",
+	"dependencies": {
+		"geode.node-ids": {
 			"id": "geode.node-ids",
 			"version": ">=v1.18.0",
 			"importance": "required"
 		}
-	],
+	},
 	"resources": {
 		"sprites": [
 			"pathfinder.png"
