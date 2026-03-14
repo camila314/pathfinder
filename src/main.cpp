@@ -55,8 +55,7 @@ public:
 
             if (auto path = co_await pick(PickMode::SaveFile, opts); path.isOk() && path.unwrap().has_value()) {
                 (void)writeBinary(*path.unwrap(), macro);
-                co_await coro::nextFrame();
-                removeFromParentAndCleanup(true);
+                queueInMainThread([this] { removeFromParentAndCleanup(true); });
             }
         };
 
