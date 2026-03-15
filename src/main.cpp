@@ -36,8 +36,6 @@ public:
         getChildByIDRecursive("stop")->setVisible(false);
  
         auto callback = [this, macro](this auto self) -> arc::Future<void> {
-            log::info("okay now let's unpack this. TWO.");
-
             auto saveDir = Mod::get()->getSaveDir();
             if (Loader::get()->isModLoaded("eclipse.eclipse-menu")) {
                 saveDir = Loader::get()->getLoadedMod("eclipse.eclipse-menu")->getSaveDir() / "replays";
@@ -55,8 +53,6 @@ public:
 
             if (auto path = co_await pick(PickMode::SaveFile, opts); path.isOk() && path.unwrap().has_value()) {
                 (void)writeBinary(*path.unwrap(), macro);
-                log::info("Saved macro successfully");
-
                 queueInMainThread([this] {
                     removeFromParentAndCleanup(true);
                 });

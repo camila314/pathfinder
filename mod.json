@@ -9,7 +9,7 @@
 	"geode": "5.3.0",
 	"name": "Pathfinder",
 	"developer": "camila314",
-	"version": "v1.0.0-beta.242",
+	"version": "v1.0.0-beta.243",
 	"dependencies": {
 		"geode.node-ids": {
 			"id": "geode.node-ids",
